@@ -336,6 +336,9 @@ public class HW1Tests {
 		s[1] = 98;
 		s[2] = 121;
 		t.setField(1, new StringField(s));
+		//set id and pid of tuple to be deleted
+		t.setId(0);
+		t.setPid(0);
 		try {
 			hp.deleteTuple(t);
 		} catch (Exception e) {
