@@ -1,6 +1,11 @@
 package hw1;
 
 import java.io.*;
+/*
+ * Student 1 name: Fa Long (id:462512)
+ * Student 2 name: Zhuo Wei (id: 462473)
+ * Date: Sep 13th, 2019
+ */
 
 /**
  * Instance of Field that stores a single String of a fixed length.
