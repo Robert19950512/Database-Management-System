@@ -1,6 +1,10 @@
 package hw1;
 import java.util.*;
-
+/*
+ * Student 1 name: Fa Long (id:462512)
+ * Student 2 name: Zhuo Wei (id: 462473)
+ * Date: Sep 13th, 2019
+ */
 /**
  * TupleDesc describes the schema of a tuple.
  */
@@ -19,6 +23,8 @@ public class TupleDesc {
      */
     public TupleDesc(Type[] typeAr, String[] fieldAr) {
     	//your code here
+    	this.fields = fieldAr;
+    	this.types = typeAr;
     }
 
     /**
@@ -26,7 +32,7 @@ public class TupleDesc {
      */
     public int numFields() {
         //your code here
-    	return 0;
+    	return fields.length;
     }
 
     /**
@@ -38,7 +44,10 @@ public class TupleDesc {
      */
     public String getFieldName(int i) throws NoSuchElementException {
         //your code here
-    	return null;
+    	if (i >= fields.length) {
+    		throw new NoSuchElementException();
+    	}
+    	return fields[i];
     }
 
     /**
@@ -50,7 +59,12 @@ public class TupleDesc {
      */
     public int nameToId(String name) throws NoSuchElementException {
         //your code here
-    	return 0;
+    	for(int i = 0; i < fields.length; i++) {
+    		if(fields[i] == name) {
+    			return i;
+    		}
+    	}
+    	throw new NoSuchElementException();
     }
 
     /**
@@ -62,7 +76,10 @@ public class TupleDesc {
      */
     public Type getType(int i) throws NoSuchElementException {
         //your code here
-    	return null;
+    	if (i >= types.length) {
+    		throw new NoSuchElementException();
+    	}
+    	return types[i];
     }
 
     /**
@@ -71,7 +88,16 @@ public class TupleDesc {
      */
     public int getSize() {
     	//your code here
-    	return 0;
+    	int size = 0;
+    	for (Type type : types ) {
+    		if (type == Type.INT) {
+    			size += 4;
+    		}
+    		if (type == Type.STRING) {
+    			size += 129;
+    		}
+    	}
+    	return size;
     }
 
     /**
@@ -84,6 +110,9 @@ public class TupleDesc {
      */
     public boolean equals(Object o) {
     	//your code here
+    	if(o.toString().equals(this.toString())) {
+    		return true;
+    	}
     	return false;
     }
     
@@ -102,6 +131,24 @@ public class TupleDesc {
      */
     public String toString() {
         //your code here
-    	return "";
+    	StringBuilder sb = new StringBuilder();
+    	int index = 0;
+    	while (index < fields.length) {
+    		if (types[index] == Type.INT) {
+    			sb.append("Int");
+    		}else if (types[index] == Type.STRING) {
+    			sb.append("String");
+    		}
+    		if (fields[index] == null) {
+    			sb.append("(null)");
+    		}else {
+    			sb.append("(" + fields[index] + ")");
+    		}
+    		if (index != fields.length - 1) {
+    			sb.append(',');
+    		}
+    		index++;
+    	}
+    	return sb.toString();
     }
 }

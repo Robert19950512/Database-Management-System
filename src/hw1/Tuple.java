@@ -2,7 +2,12 @@ package hw1;
 
 import java.sql.Types;
 import java.util.HashMap;
-
+import java.util.Map;
+/*
+ * Student 1 name: Fa Long (id:462512)
+ * Student 2 name: Zhuo Wei (id: 462473)
+ * Date: Sep 13th, 2019
+ */
 /**
  * This class represents a tuple that will contain a single row's worth of information
  * from a table. It also includes information about where it is stored
@@ -15,13 +20,18 @@ public class Tuple {
 	 * Creates a new tuple with the given description
 	 * @param t the schema for this tuple
 	 */
+	private TupleDesc desc;
+	private int pid;
+	private int sid;
+	HashMap<Integer, Field> fieldMap= new HashMap<>();
 	public Tuple(TupleDesc t) {
 		//your code here
+		this.desc = t;
 	}
 	
 	public TupleDesc getDesc() {
-		//your code here
-		return null;
+		//your code here, don't know what to do
+		return this.desc;
 	}
 	
 	/**
@@ -30,11 +40,12 @@ public class Tuple {
 	 */
 	public int getPid() {
 		//your code here
-		return 0;
+		return this.pid;
 	}
 
 	public void setPid(int pid) {
 		//your code here
+		this.pid = pid;
 	}
 
 	/**
@@ -43,15 +54,17 @@ public class Tuple {
 	 */
 	public int getId() {
 		//your code here
-		return 0;
+		return this.sid;
 	}
 
 	public void setId(int id) {
+		this.sid = id;
 		//your code here
 	}
 	
 	public void setDesc(TupleDesc td) {
 		//your code here;
+		this.desc = td;
 	}
 	
 	/**
@@ -61,11 +74,11 @@ public class Tuple {
 	 */
 	public void setField(int i, Field v) {
 		//your code here
+		fieldMap.put(i,v);
 	}
-	
 	public Field getField(int i) {
 		//your code here
-		return null;
+		return fieldMap.get(i);
 	}
 	
 	/**
@@ -75,7 +88,11 @@ public class Tuple {
 	 */
 	public String toString() {
 		//your code here
-		return "";
+		StringBuilder sb = new StringBuilder();
+		for (Map.Entry<Integer, Field> entry : fieldMap.entrySet()) {
+			sb.append("id: " + entry.getKey() + "value:" + entry.getValue().toString() + " ");
+		}
+		return sb.toString();
 	}
 }
 	

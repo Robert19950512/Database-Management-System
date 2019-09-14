@@ -24,7 +24,7 @@ public class YourUnitTests {
 	private HeapPage hp;
 
 	@Before
-	public void setup() {
+	public void setup() throws IOException {
 		
 		try {
 			Files.copy(new File("testfiles/test.dat.bak").toPath(), new File("testfiles/test.dat").toPath(), StandardCopyOption.REPLACE_EXISTING);

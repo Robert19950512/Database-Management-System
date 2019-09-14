@@ -28,7 +28,7 @@ public class HeapPageTest {
 	private HeapPage hp;
 	
 	@Before
-	public void setup() {
+	public void setup() throws IOException {
 		
 		try {
 			Files.copy(new File("testfiles/test.dat.bak").toPath(), new File("testfiles/test.dat").toPath(), StandardCopyOption.REPLACE_EXISTING);
@@ -55,6 +55,7 @@ public class HeapPageTest {
 		}
 	}
 	
+	@Test
 	public void testAddTuple() {
 		Tuple t = new Tuple(td);
 		t.setField(0, new IntField(new byte[] {0, 0, 0, (byte)131}));
@@ -76,6 +77,7 @@ public class HeapPageTest {
 		it.next();
 		assertTrue(it.hasNext());
 		it.next();
+		System.out.println(it.hasNext());
 		assertFalse(it.hasNext());
 		
 	}

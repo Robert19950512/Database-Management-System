@@ -6,9 +6,14 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-
+/*
+ * Student 1 name: Fa Long (id:462512)
+ * Student 2 name: Zhuo Wei (id: 462473)
+ * Date: Sep 13th, 2019
+ */
 public class HeapPage {
 
 	private int id;
@@ -46,7 +51,7 @@ public class HeapPage {
 
 	public int getId() {
 		//your code here
-		return 0;
+		return this.id;
 	}
 
 	/**
@@ -56,7 +61,9 @@ public class HeapPage {
 	 */
 	public int getNumSlots() {
 		//your code here
-		return 0;
+		int slotLength = td.getSize();
+		int numSlots = (HeapFile.PAGE_SIZE * 8) / (slotLength * 8 + 1);
+		return numSlots;
 	}
 
 	/**
@@ -65,7 +72,9 @@ public class HeapPage {
 	 */
 	private int getHeaderSize() {        
 		//your code here
-		return 0;
+		int slotLength = td.getSize();
+		int numSlots = (HeapFile.PAGE_SIZE * 8) / (slotLength * 8 + 1);
+		return (int) Math.ceil(numSlots / 8.0);
 	}
 
 	/**
@@ -75,7 +84,16 @@ public class HeapPage {
 	 */
 	public boolean slotOccupied(int s) {
 		//your code here
-		return false;
+		//index is the index of the byte we need to look at in the header
+		int index = s / 8;
+		// pos is the index of the bit we need to check in the byte specify by the index.
+		int pos = s % 8;
+		if ((header[index] >> pos & (byte)1 )== 1) {
+			return true;
+		}else {
+			return false;
+		}
+		
 	}
 
 	/**
@@ -85,6 +103,16 @@ public class HeapPage {
 	 */
 	public void setSlotOccupied(int s, boolean value) {
 		//your code here
+		int index = s / 8;
+		int pos = s % 8;
+		if (value == true) {
+			header[index] = (byte) (header[index] | ((byte)1 << pos)); 
+		}
+		else { 
+			header[index] = (byte) (header[index] & ((byte)0 << pos));
+		}
+		
+		
 	}
 	
 	/**
@@ -94,7 +122,34 @@ public class HeapPage {
 	 * @throws Exception
 	 */
 	public void addTuple(Tuple t) throws Exception {
+		if (!t.getDesc().equals(this.td)) {
+			System.out.println("unmatched tuple description during insertion");
+			throw new Exception();
+		}
+		boolean isfull = true;
+		for (int index = 0 ; index < this.numSlots ; index++) {
+			if(!slotOccupied(index)) {
+				tuples[index] = t;
+				setSlotOccupied(index, true);
+				isfull = false;
+				break;
+				
+			}
+		}
+		if (isfull) {
+			System.out.println("current page is full");
+			throw new Exception();
+		}
 		//your code here
+	}
+	//determine if the current heap page is full.
+	public boolean isFull() {
+		for (int index = 0 ; index < this.numSlots ; index++) {
+			if(!slotOccupied(index)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**
@@ -103,9 +158,21 @@ public class HeapPage {
 	 * @param t the tuple to be deleted
 	 * @throws Exception
 	 */
-	public void deleteTuple(Tuple t) {
+	
+	public void deleteTuple(Tuple t) throws Exception {
+		if (t.getPid() == this.id) {
+			int tupleId = t.getId();
+			if (slotOccupied(tupleId) == false) {
+				throw new Exception();
+			}
+			else {
+				setSlotOccupied (tupleId, false);
+			}
+		}
+		else throw new Exception();
 		//your code here
 	}
+	
 	
 	/**
      * Suck up tuples from the source file.
@@ -232,6 +299,46 @@ public class HeapPage {
 	 */
 	public Iterator<Tuple> iterator() {
 		//your code here
-		return null;
+		return new TupleIterator(this.header, this.tuples);
+	}
+	private class TupleIterator implements Iterator<Tuple> {
+		private final Tuple[] tuples;
+		private final byte[] header;
+		private int cursor;
+		
+		public TupleIterator(byte[] header, Tuple[] tuples) {
+			this.tuples = tuples;
+			this.header = header;
+			this.cursor = 0;
+		}
+		@Override
+		public boolean hasNext() {
+			// TODO Auto-generated method stub
+			for (int i = cursor; i < tuples.length; i++) {
+				int index = i / 8;
+				int cur = i % 8;
+				if ((header[index] >> cur & (byte)1) == 1) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		@Override
+		public Tuple next() {
+			// TODO Auto-generated method stub
+			for (int i = cursor; i < tuples.length; i++) {
+				int index = i / 8;
+				int cur = i % 8;
+				if ((header[index] >> cur & (byte)1) == 1) {
+					cursor = i + 1;
+					return tuples[i];
+				}
+			}
+			return null;
+		}
+		
 	}
 }
+
+

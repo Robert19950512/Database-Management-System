@@ -47,7 +47,7 @@ public class HeapFileTest {
 	}
 	
 	@Test
-	public void testGetters() {
+	public void testGetters() throws IOException {
 		assertTrue(hf.getTupleDesc().equals(td));
 		
 		assertTrue(hf.getNumPages() == 1);
@@ -63,7 +63,6 @@ public class HeapFileTest {
 		s[1] = 98;
 		s[2] = 121;
 		t.setField(1, new StringField(s));
-		
 		try {
 			hf.addTuple(t);
 		} catch (Exception e) {
@@ -71,7 +70,13 @@ public class HeapFileTest {
 			fail("unable to add valid tuple");
 		}
 		
-		assertTrue(hf.getAllTuples().size() == 2);
+		try {
+//			System.out.println(hf.getAllTuples().size());
+			assertTrue(hf.getAllTuples().size() == 2);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	@Test
@@ -91,7 +96,12 @@ public class HeapFileTest {
 			fail("unable to delete tuple");
 		}
 		
-		assertTrue(hf.getAllTuples().size() == 0);
+		try {
+			assertTrue(hf.getAllTuples().size() == 0);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
