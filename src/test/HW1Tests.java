@@ -57,7 +57,7 @@ public class HW1Tests {
 	}
 
 	@Before
-	public void setup() throws IOException {
+	public void setup() {
 		
 		try {
 			Files.copy(new File("testfiles/test.dat.bak").toPath(), new File("testfiles/test.dat").toPath(), StandardCopyOption.REPLACE_EXISTING);

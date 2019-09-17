@@ -58,16 +58,25 @@ public class HeapFile {
 	 * @return a HeapPage at the given page number
 	 * @throws IOException 
 	 */
-	public HeapPage readPage(int id) throws IOException {// id is page number
+	public HeapPage readPage(int id) {// id is page number
 		//your code here
-		RandomAccessFile raFile = new RandomAccessFile(this.file, "r");
-		raFile.seek((long)id * PAGE_SIZE);
-		byte[] data = new byte[PAGE_SIZE];
-		raFile.read(data);
-		raFile.close();
+		RandomAccessFile raFile;
+		byte[] data;
+		try {
+			raFile = new RandomAccessFile(this.file, "r");
+			raFile.seek((long)id * PAGE_SIZE);
+			data = new byte[PAGE_SIZE];
+			raFile.read(data);
+			raFile.close();
+			return new HeapPage(id, data, tableId);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
 		
 		
-		return new HeapPage(id, data, tableId);
 	}
 	
 	/**
@@ -138,14 +147,9 @@ public class HeapFile {
 	//exit page is full.
 	private HeapPage findEmpty(){
 		for (int i = 0 ; i < numOfPages ; i++) {
-			try {
-				HeapPage cur = this.readPage(i);
-				if (!cur.isFull()) {
-					return cur;
-				}
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			HeapPage cur = this.readPage(i);
+			if (!cur.isFull()) {
+				return cur;
 			}
 		}
 		return null;
