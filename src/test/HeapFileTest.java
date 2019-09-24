@@ -70,13 +70,10 @@ public class HeapFileTest {
 			fail("unable to add valid tuple");
 		}
 		
-		try {
+		
 //			System.out.println(hf.getAllTuples().size());
 			assertTrue(hf.getAllTuples().size() == 2);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 	
 	@Test
@@ -96,12 +93,9 @@ public class HeapFileTest {
 			fail("unable to delete tuple");
 		}
 		
-		try {
+		
 			assertTrue(hf.getAllTuples().size() == 0);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 
 }

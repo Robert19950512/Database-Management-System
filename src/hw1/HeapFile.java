@@ -175,7 +175,7 @@ public class HeapFile {
 	 * @return
 	 * @throws IOException 
 	 */
-	public ArrayList<Tuple> getAllTuples() throws IOException {
+	public ArrayList<Tuple> getAllTuples() {
 		//your code here
 		ArrayList<Tuple> allTuples = new ArrayList<Tuple>();
 		for(int i = 0; i < numOfPages; i++) {
