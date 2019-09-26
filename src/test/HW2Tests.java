@@ -77,7 +77,7 @@ public class HW2Tests {
 		testr = testr.select(1, RelationalOperator.EQ, new StringField("hi"));
 		
 		assertTrue("Should be 1 tuple after select operation", testr.getTuples().size() == 1);
-		assertTrue("select operation does not change tuple description", testr.getDesc().equals(atd));
+		assertTrue("select operation does not change tuple description", testr.getDesc().equals(testtd));
 	}
 	
 	@Test
@@ -354,7 +354,7 @@ public class HW2Tests {
 	@Test
 	public void testJoinOnStringFieldsQ() {
 		// This test makes use of the S.txt,dat,dat.bak files in my testFiles folder.
-		Query q = new Query("SELECT * FROM test JOIN ON S WHERE S.s1 = test.c2");
+		Query q = new Query("SELECT * FROM test JOIN S ON S.s1 = test.c2");
 		Relation r = q.execute();
 		// Verify that only one tuple was matched
 		assertEquals("Should only be 1 tuple in the resulting relation.", 1, r.getTuples().size());
