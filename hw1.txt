@@ -1,0 +1,3 @@
+all tests passed, wei long great job!
+
+total 100/100
