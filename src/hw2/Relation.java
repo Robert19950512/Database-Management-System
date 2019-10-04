@@ -6,6 +6,7 @@ import hw1.Field;
 import hw1.RelationalOperator;
 import hw1.Tuple;
 import hw1.TupleDesc;
+import hw1.Type;
 
 /**
  * This class provides methods to perform relational algebra operations. It will be used
@@ -20,6 +21,8 @@ public class Relation {
 	
 	public Relation(ArrayList<Tuple> l, TupleDesc td) {
 		//your code here
+		this.tuples = l;
+		this.td = td;
 	}
 	
 	/**
@@ -31,7 +34,12 @@ public class Relation {
 	 */
 	public Relation select(int field, RelationalOperator op, Field operand) {
 		//your code here
-		return null;
+		for (Tuple tp : this.tuples) {
+			if (!tp.getField(field).compare(op, operand)) {
+				tuples.remove(tp);
+			}
+		}
+		return this;
 	}
 	
 	/**
@@ -42,7 +50,29 @@ public class Relation {
 	 */
 	public Relation rename(ArrayList<Integer> fields, ArrayList<String> names) {
 		//your code here
-		return null;
+		int maxIndex = this.td.numFields() - 1;
+		for (Integer num : fields) {
+			if (num.intValue() > maxIndex) {
+				return null;
+			}
+		}
+		Type[] newType = new Type[this.td.numFields()];
+		String[] newFieldAr = new String[newType.length];
+		for (int i = 0 ; i < newType.length ; i ++) {
+			newType[i] = this.td.getType(i);
+			newFieldAr[i] = this.td.getFieldName(i);
+		}
+		for (Integer num : fields) {
+			newFieldAr[num.intValue()] = names.get(0);
+			names.remove(0);
+		}
+		
+		TupleDesc newDesc = new TupleDesc(newType,newFieldAr);
+		this.td = newDesc;
+		for (Tuple tp : this.tuples) {
+			tp.setDesc(newDesc);
+		}
+		return this;
 	}
 	
 	/**
@@ -52,7 +82,35 @@ public class Relation {
 	 */
 	public Relation project(ArrayList<Integer> fields) {
 		//your code here
-		return null;
+		int maxIndex = this.td.numFields() - 1;
+		for (Integer num : fields) {
+			if (num.intValue() > maxIndex || num.intValue() < 0) {
+				return null;
+			}
+		}
+		Type[] newType = new Type[this.td.numFields()];
+		String[] newFieldAr = new String[newType.length];
+		for (int i = 0 ; i < newType.length ; i ++) {
+			if (fields.contains(Integer.valueOf(i))) {
+				newType[i] = this.td.getType(i);
+				newFieldAr[i] = this.td.getFieldName(i);
+			}
+		}
+		TupleDesc newDesc = new TupleDesc(newType,newFieldAr);
+		ArrayList<Tuple> newTupleList = new ArrayList<>();
+		for (Tuple oldTp : this.tuples) {
+			Tuple newTp = new Tuple(newDesc);
+			for (int i = 0 ; i < oldTp.getDesc().numFields() ; i ++) {
+				// means current column is preserved
+				if (fields.contains(Integer.valueOf(i))) {
+					newTp.setField(newDesc.nameToId(oldTp.getDesc().getFieldName(i)), oldTp.getField(i));
+				}
+			}
+			newTupleList.add(newTp);
+		}
+		
+		
+		return new Relation(newTupleList, newDesc);
 	}
 	
 	/**
@@ -66,7 +124,47 @@ public class Relation {
 	 */
 	public Relation join(Relation other, int field1, int field2) {
 		//your code here
-		return null;
+		//create the desc for new relation
+		int newLength = this.td.numFields() + other.td.numFields() - 1;
+		Type[] newType = new Type[newLength];
+		String[] newFieldAr = new String[newLength];
+		for (int i = 0 ; i < this.td.numFields() ; i ++) {
+			newType[i] = this.getDesc().getType(i);
+			newFieldAr[i] = this.getDesc().getFieldName(i);
+		}
+		for (int i = 0 ; i < other.getDesc().numFields() - 1 ; i ++) {
+			int layback = 0;
+			if (i != field2) {
+				newType[this.getDesc().numFields() + i + layback] = other.getDesc().getType(i);
+				newFieldAr[this.getDesc().numFields() + i + layback] = other.getDesc().getFieldName(i);
+			}else {
+				layback = -1;
+			}	
+		}
+		//finish creating new tupledesc
+		TupleDesc newDesc = new TupleDesc(newType, newFieldAr);
+		ArrayList<Tuple> newTupleList = new ArrayList<>(); 
+		for (Tuple tup1 : this.getTuples()) {
+			for (Tuple tup2 : other.getTuples()) {
+				if (tup1.getField(field1).equals(tup2.getField(field2))) {
+					Tuple temp = new Tuple(newDesc);
+					for (int i = 0 ; i < tup1.getDesc().numFields();i++) {
+						temp.setField(i, tup1.getField(i));
+					}
+					for (int i = 0 ; i < tup2.getDesc().numFields(); i++) {
+						int layback = 0;
+						if (i != field2) {
+							temp.setField(i + layback, tup2.getField(i));;
+						}else {
+							layback = -1;
+						}
+					}
+					newTupleList.add(temp);
+				}
+			}
+		}
+			
+		return new Relation(newTupleList, newDesc);
 	}
 	
 	/**
@@ -82,12 +180,12 @@ public class Relation {
 	
 	public TupleDesc getDesc() {
 		//your code here
-		return null;
+		return this.td;
 	}
 	
 	public ArrayList<Tuple> getTuples() {
 		//your code here
-		return null;
+		return this.tuples;
 	}
 	
 	/**
@@ -96,6 +194,14 @@ public class Relation {
 	 */
 	public String toString() {
 		//your code here
-		return null;
+		StringBuilder sb = new StringBuilder();
+		String desc = this.getDesc().toString();
+		sb.append(desc);
+		sb.append("\n");
+		for (Tuple tp : this.getTuples()) {
+			sb.append(tp.toString());
+			sb.append("\n");
+		}
+		return sb.toString();
 	}
 }
