@@ -3,9 +3,12 @@ package hw2;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
+import hw1.Field;
 import hw1.Tuple;
 import hw1.TupleDesc;
+import hw1.Type;
 
 /**
  * A class to perform various aggregations, by accepting one tuple at a time
@@ -16,12 +19,23 @@ public class Aggregator {
 	private AggregateOperator operator;
 	private boolean isGroupBy;
 	private TupleDesc td;
-
+	
+	private ArrayList<Tuple> results;
+	Map<Type,Integer> numMap;
+	Map<Type, Tuple> groupMap;
+	Tuple theTuple;
 	public Aggregator(AggregateOperator o, boolean groupBy, TupleDesc td) {
 		//your code here
 		this.operator = o;
 		this.isGroupBy = groupBy;
 		this.td = td;
+		results  = new ArrayList<>();
+		if (groupBy == true) {
+			numMap = new HashMap<>();
+			groupMap = new HashMap<>();
+		}else {
+			theTuple = new Tuple(td);
+		}
 		
 
 	}
@@ -32,6 +46,39 @@ public class Aggregator {
 	 */
 	public void merge(Tuple t) {
 		//your code here
+		Tuple cur = null;
+		Field curVal = null;
+		if (isGroupBy == true) {
+			Field temp = t.getField(0);
+			if (groupMap.containsKey(temp)) {
+				cur = groupMap.get(t.getField(0));
+			}else {
+				cur = new Tuple(t.getDesc());
+			}
+		} else {
+			cur = this.theTuple;
+		}
+		//to be implement
+		switch (operator) {
+        case MAX:
+            
+        	break;
+        case MIN:
+            
+        	break;
+        case AVG:
+            
+        	break;
+        case COUNT:
+            
+        	break;
+        case SUM:
+            
+        	break;
+        
+        }
+		
+		
 	}
 	
 	/**

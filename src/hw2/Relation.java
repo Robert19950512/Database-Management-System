@@ -167,6 +167,26 @@ public class Relation {
 	 */
 	public Relation aggregate(AggregateOperator op, boolean groupBy) {
 		//your code here
+		if (!groupBy) {
+			if (this.getDesc().numFields() != 1) {
+				return null;
+			}
+			if (this.getDesc().getType(0) == Type.STRING) {
+				if (op == AggregateOperator.AVG || op == AggregateOperator.SUM) {
+					return null;
+				}
+			}
+		}else {
+			if (this.getDesc().numFields() != 2) {
+				return null;
+			}
+			if (this.getDesc().getType(1) == Type.STRING) {
+				if (op == AggregateOperator.AVG || op == AggregateOperator.SUM) {
+					return null;
+				}
+			}
+		}
+		//to be implement
 		return null;
 	}
 	
