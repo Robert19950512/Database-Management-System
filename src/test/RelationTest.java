@@ -80,6 +80,9 @@ public class RelationTest {
 		Relation ar = new Relation(ahf.getAllTuples(), atd);
 		tr = tr.join(ar, 0, 0);
 		
+		int length = tr.getDesc().numFields();
+		TupleDesc desc = tr.getDesc();
+		
 		assertTrue("There should be 5 tuples after the join", tr.getTuples().size() == 5);
 		assertTrue("The size of the tuples should reflect the additional columns from the join", tr.getDesc().getSize() == 141);
 	}

@@ -34,11 +34,13 @@ public class Relation {
 	 */
 	public Relation select(int field, RelationalOperator op, Field operand) {
 		//your code here
+		ArrayList<Tuple> newTupleList = new ArrayList<>();
 		for (Tuple tp : this.tuples) {
-			if (!tp.getField(field).compare(op, operand)) {
-				tuples.remove(tp);
+			if (tp.getField(field).compare(op, operand)) {
+				newTupleList.add(tp);
 			}
 		}
+		this.tuples = newTupleList;
 		return this;
 	}
 	
@@ -88,17 +90,15 @@ public class Relation {
 				return null;
 			}
 		}
-		Type[] newType = new Type[this.td.numFields()];
+		Type[] newType = new Type[fields.size()];
 		String[] newFieldAr = new String[newType.length];
-		for (int i = 0 ; i < newType.length ; i ++) {
-			if (fields.contains(Integer.valueOf(i))) {
-				newType[i] = this.td.getType(i);
-				newFieldAr[i] = this.td.getFieldName(i);
-			}
+		for (int i = 0 ; i < fields.size() ; i ++) {
+			newType[i] = this.td.getType(fields.get(i));
+			newFieldAr[i] = this.td.getFieldName(fields.get(i));
 		}
 		TupleDesc newDesc = new TupleDesc(newType,newFieldAr);
 		ArrayList<Tuple> newTupleList = new ArrayList<>();
-		for (Tuple oldTp : this.tuples) {
+		for (Tuple oldTp : this.getTuples()) {
 			Tuple newTp = new Tuple(newDesc);
 			for (int i = 0 ; i < oldTp.getDesc().numFields() ; i ++) {
 				// means current column is preserved
@@ -125,21 +125,16 @@ public class Relation {
 	public Relation join(Relation other, int field1, int field2) {
 		//your code here
 		//create the desc for new relation
-		int newLength = this.td.numFields() + other.td.numFields() - 1;
+		int newLength = this.td.numFields() + other.td.numFields();
 		Type[] newType = new Type[newLength];
 		String[] newFieldAr = new String[newLength];
 		for (int i = 0 ; i < this.td.numFields() ; i ++) {
 			newType[i] = this.getDesc().getType(i);
 			newFieldAr[i] = this.getDesc().getFieldName(i);
 		}
-		for (int i = 0 ; i < other.getDesc().numFields() - 1 ; i ++) {
-			int layback = 0;
-			if (i != field2) {
-				newType[this.getDesc().numFields() + i + layback] = other.getDesc().getType(i);
-				newFieldAr[this.getDesc().numFields() + i + layback] = other.getDesc().getFieldName(i);
-			}else {
-				layback = -1;
-			}	
+		for (int i = 0 ; i < other.getDesc().numFields() ; i ++) {
+				newType[this.getDesc().numFields() + i  ] = other.getDesc().getType(i);
+				newFieldAr[this.getDesc().numFields() + i ] = other.getDesc().getFieldName(i);
 		}
 		//finish creating new tupledesc
 		TupleDesc newDesc = new TupleDesc(newType, newFieldAr);
@@ -152,12 +147,9 @@ public class Relation {
 						temp.setField(i, tup1.getField(i));
 					}
 					for (int i = 0 ; i < tup2.getDesc().numFields(); i++) {
-						int layback = 0;
-						if (i != field2) {
-							temp.setField(i + layback, tup2.getField(i));;
-						}else {
-							layback = -1;
-						}
+						
+						temp.setField(i , tup2.getField(i));;
+						
 					}
 					newTupleList.add(temp);
 				}
