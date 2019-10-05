@@ -25,6 +25,7 @@ public class Aggregator {
 	Map<Type, Tuple> groupMap;
 	Tuple theTuple;
 	public Aggregator(AggregateOperator o, boolean groupBy, TupleDesc td) {
+		//feed one tuple everytime
 		//your code here
 		this.operator = o;
 		this.isGroupBy = groupBy;

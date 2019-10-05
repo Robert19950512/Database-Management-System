@@ -4,11 +4,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
-/*
- * Student 1 name: Fa Long (id:462512)
- * Student 2 name: Zhuo Wei (id: 462473)
- * Date: Sep 13th, 2019
- */
+ 
 
 /**
  * The Catalog keeps track of all available tables in the database and their
