@@ -187,7 +187,12 @@ public class Relation {
 			}
 		}
 		//to be implement
-		return null;
+		Aggregator ag = new Aggregator(op,groupBy, this.getDesc());
+		for (Tuple tp : this.getTuples()) {
+			ag.merge(tp);
+		}
+		this.tuples = ag.getResults();
+		return this;
 	}
 	
 	public TupleDesc getDesc() {
