@@ -136,7 +136,7 @@ public class Relation {
 				newType[this.getDesc().numFields() + i  ] = other.getDesc().getType(i);
 				newFieldAr[this.getDesc().numFields() + i ] = other.getDesc().getFieldName(i);
 		}
-		//finish creating new tupledesc
+		//finish creating new tuple desc
 		TupleDesc newDesc = new TupleDesc(newType, newFieldAr);
 		ArrayList<Tuple> newTupleList = new ArrayList<>(); 
 		for (Tuple tup1 : this.getTuples()) {
@@ -186,13 +186,12 @@ public class Relation {
 				}
 			}
 		}
-		//to be implement
-		Aggregator ag = new Aggregator(op,groupBy, this.getDesc());
-		for (Tuple tp : this.getTuples()) {
-			ag.merge(tp);
+		Aggregator agg = new Aggregator (op, groupBy, this.getDesc());
+		for (Tuple tuple : this.getTuples()) {
+			agg.merge(tuple);
 		}
-		this.tuples = ag.getResults();
-		return this;
+		ArrayList<Tuple> newTupleList = agg.getResults();
+		return new Relation(newTupleList, td);
 	}
 	
 	public TupleDesc getDesc() {

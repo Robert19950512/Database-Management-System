@@ -28,6 +28,7 @@ public class Aggregator {
 	Tuple theTuple;
 	int theNum;
 	public Aggregator(AggregateOperator o, boolean groupBy, TupleDesc td) {
+		//feed one tuple everytime
 		//your code here
 		this.operator = o;
 		this.isGroupBy = groupBy;
