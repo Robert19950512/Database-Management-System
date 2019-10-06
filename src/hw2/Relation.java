@@ -52,10 +52,15 @@ public class Relation {
 	 */
 	public Relation rename(ArrayList<Integer> fields, ArrayList<String> names) {
 		//your code here
+		for (String n : names) {
+			if (n == null || n.equals("")) {
+				return this;
+			}
+		}
 		int maxIndex = this.td.numFields() - 1;
 		for (Integer num : fields) {
 			if (num.intValue() > maxIndex) {
-				return null;
+				return this;
 			}
 		}
 		Type[] newType = new Type[this.td.numFields()];
