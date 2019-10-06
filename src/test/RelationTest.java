@@ -97,7 +97,12 @@ public class RelationTest {
 		f.add(0);
 		n.add("b1");
 		
-		ar = ar.rename(f, n);
+		try {
+			ar = ar.rename(f, n);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		assertTrue("Rename should not remove any tuples", ar.getTuples().size() == 8);
 		assertTrue("Rename did not go through", ar.getDesc().getFieldName(0).equals("b1"));

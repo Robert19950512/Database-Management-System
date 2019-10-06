@@ -27,6 +27,7 @@ public class Aggregator {
 	Map<Field, Tuple> groupMap;
 	Tuple theTuple;
 	int theNum;
+	float total;
 	public Aggregator(AggregateOperator o, boolean groupBy, TupleDesc td) {
 		//feed one tuple everytime
 		//your code here
@@ -73,6 +74,7 @@ public class Aggregator {
 			curIndex = 1;
 			curNum = numMap.get(t.getField(0));
 		} else {
+			this.theNum += 1;
 			cur = this.theTuple;
 			curNum = this.theNum;
 			
@@ -100,10 +102,11 @@ public class Aggregator {
         	break;
         case AVG:
         	if (cur.getField(curIndex) == null) {
+        		this.total += t.getField(curIndex).hashCode();
             	cur.setField(curIndex, t.getField(curIndex));
             }else {
-            	int total = cur.getField(curIndex).hashCode() * (curNum - 1) + t.getField(curIndex).hashCode();
-            	cur.setField(curIndex, new IntField(total / curNum));
+            	this.total += t.getField(curIndex).hashCode();
+            	cur.setField(curIndex, new IntField((int)(total / curNum)));
             }
         	break;
         case COUNT:

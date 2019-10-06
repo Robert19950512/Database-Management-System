@@ -1,6 +1,7 @@
 package hw2;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import hw1.Field;
 import hw1.RelationalOperator;
@@ -50,7 +51,7 @@ public class Relation {
 	 * @param names a list of new names. The order of these names is the same as the order of field numbers in the field list
 	 * @return
 	 */
-	public Relation rename(ArrayList<Integer> fields, ArrayList<String> names) {
+	public Relation rename (ArrayList<Integer> fields, ArrayList<String> names) throws Exception{
 		//your code here
 		for (String n : names) {
 			if (n == null || n.equals("")) {
@@ -69,11 +70,19 @@ public class Relation {
 			newType[i] = this.td.getType(i);
 			newFieldAr[i] = this.td.getFieldName(i);
 		}
+		// check for duplicates
+		HashSet<String> cNames = new HashSet<>(); 
 		for (Integer num : fields) {
 			newFieldAr[num.intValue()] = names.get(0);
 			names.remove(0);
 		}
-		
+		for (String name : newFieldAr) {
+			if (cNames.contains(name)) {
+				throw new Exception();
+			}else {
+				cNames.add(name);
+			}
+		}
 		TupleDesc newDesc = new TupleDesc(newType,newFieldAr);
 		this.td = newDesc;
 		for (Tuple tp : this.tuples) {
@@ -87,16 +96,19 @@ public class Relation {
 	 * @param fields a list of field numbers (refer to TupleDesc) that should be in the result
 	 * @return
 	 */
-	public Relation project(ArrayList<Integer> fields) {
+	public Relation project(ArrayList<Integer> fields) throws IllegalArgumentException{
 		//your code here
 		int maxIndex = this.td.numFields() - 1;
 		for (Integer num : fields) {
 			if (num.intValue() > maxIndex || num.intValue() < 0) {
-				return null;
+				throw new IllegalArgumentException();
 			}
 		}
 		Type[] newType = new Type[fields.size()];
 		String[] newFieldAr = new String[newType.length];
+		if (fields.size() == 0) {
+			return new Relation(new ArrayList<Tuple>(), new TupleDesc(newType, newFieldAr));
+		}
 		for (int i = 0 ; i < fields.size() ; i ++) {
 			newType[i] = this.td.getType(fields.get(i));
 			newFieldAr[i] = this.td.getFieldName(fields.get(i));
