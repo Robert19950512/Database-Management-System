@@ -62,7 +62,24 @@ public class Query {
 				
 			}
 		}
-		
+		// where query
+		Expression whereExp = sb.getWhere();
+		if (whereExp != null) {
+			WhereExpressionVisitor wv = new WhereExpressionVisitor();
+			whereExp.accept(wv);
+			cur = cur.select(cur.getDesc().nameToId(wv.getLeft()), wv.getOp(), wv.getRight());
+			
+		}
+		// project
+		List<SelectItem> items = sb.getSelectItems();
+		if(items.get(0).toString() != "*") {
+			ArrayList<Integer> newFields = new ArrayList<>();
+			for (SelectItem item : items) {
+				String itemName = item.toString();
+				newFields.add(cur.getDesc().nameToId(itemName));
+			}
+			cur = cur.project(newFields);
+		}
 		
 		return cur;
 		
