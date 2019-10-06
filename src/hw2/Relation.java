@@ -165,7 +165,7 @@ public class Relation {
 					}
 					for (int i = 0 ; i < tup2.getDesc().numFields(); i++) {
 						
-						temp.setField(i , tup2.getField(i));;
+						temp.setField(i+tup1.getDesc().numFields() , tup2.getField(i));;
 						
 					}
 					newTupleList.add(temp);
