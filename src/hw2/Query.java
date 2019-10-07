@@ -48,10 +48,8 @@ public class Query {
 		PlainSelect sb = (PlainSelect)selectStatement.getSelectBody();
 		//your code here
 		//execute from (join), then where, then select
-		List<String> tableNames = new ArrayList<>();
-		TablesNamesFinder tf = new TablesNamesFinder();
-		tableNames = tf.getTableList(selectStatement);
-		Relation cur = getRelationFromName(tableNames.get(0));
+		Table fromTable = (Table)sb.getFromItem();
+		Relation cur = getRelationFromTable(fromTable);
 		// join
 		List<Join> joins = sb.getJoins();
 		if (joins != null) {
@@ -85,9 +83,11 @@ public class Query {
 		List<SelectItem> items = sb.getSelectItems();
 		if (items != null && items.size() != 0 && items.get(0).toString() != "*") {
 			SelectExpressionItem curExp = (SelectExpressionItem)items.get(0);
-			if (curExp.getExpression().getClass() == Function.class) {
+			boolean isProcessed = false;
+			if (items.size() == 1 && curExp.getExpression().getClass() == Function.class) {
 				// Aggregate without group by
 				//relation should have only one column
+				isProcessed = true;
 				Function agFunction = (Function)curExp.getExpression();
 				AggregateExpressionVisitor aEV = new AggregateExpressionVisitor();
 				agFunction.accept(aEV);
@@ -99,11 +99,23 @@ public class Query {
 					newField.add(cur.getDesc().nameToId(aEV.getColumn()));
 				}
 				cur = cur.project(newField);
+				if (curExp.getAlias() != null) {
+					ArrayList<Integer> fields = new ArrayList<>();
+					ArrayList<String> names = new ArrayList<>();
+					fields.add(0);
+					names.add(curExp.getAlias().getName());
+					try {
+						cur = cur.rename(fields, names);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
 				cur = cur.aggregate(aEV.getOp(), false);
-			}else if (items.size() == 2) {
+			}else if (items.size() == 2){
 				curExp = (SelectExpressionItem)items.get(1);
 				if (curExp.getExpression().getClass() == Function.class) {
 					//aggregate with group by
+					isProcessed = true;
 					Function agFunction = (Function)curExp.getExpression();
 					AggregateExpressionVisitor aEV = new AggregateExpressionVisitor();
 					agFunction.accept(aEV);
@@ -114,12 +126,47 @@ public class Query {
 					newField.add(cur.getDesc().nameToId(aEV.getColumn()));
 					cur = cur.project(newField);
 					cur = cur.aggregate(aEV.getOp(), true);
-				}
-			}else {
+					//rename if necessary
+					ArrayList<Integer> fields = new ArrayList<>();
+					ArrayList<String> names = new ArrayList<>();
+					for (int i = 0 ; i < 2 ; i ++) {
+						SelectExpressionItem it = (SelectExpressionItem) items.get(i);
+						if (it.getAlias() != null) {
+							fields.add(i);
+							names.add(it.getAlias().getName());
+						}
+					}
+					try {
+						cur = cur.rename(fields, names);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					
+				} 
+				
+			}
+			if (!isProcessed){
 				ArrayList<Integer> newFields = new ArrayList<>();
+				ArrayList<Integer> renameFields = new ArrayList<>();
+				ArrayList<String> newNames = new ArrayList<>();
 				for (SelectItem item : items) {
-					String itemName = item.toString();
+					SelectExpressionItem it = (SelectExpressionItem) item;
+					Column curCol = (Column)it.getExpression();
+					String itemName = curCol.getColumnName();
 					newFields.add(cur.getDesc().nameToId(itemName));
+					if (it.getAlias() != null) {
+						renameFields.add(cur.getDesc().nameToId(itemName));
+						newNames.add(it.getAlias().getName());
+					}
+				}
+				// rename if necessary
+				if (!renameFields.isEmpty()) {
+					try {
+						cur = cur.rename(renameFields, newNames);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 				cur = cur.project(newFields);
 			}

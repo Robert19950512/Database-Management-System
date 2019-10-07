@@ -77,7 +77,7 @@ public class QueryTest {
 	
 	@Test
 	public void testAggregate() {
-		Query q = new Query("SELECT SUM(a2) FROM A");
+		Query q = new Query("SELECT SUM(a2) AS sum FROM A");
 		Relation r = q.execute();
 		
 		assertTrue("Aggregations should result in one tuple",r.getTuples().size() == 1);
