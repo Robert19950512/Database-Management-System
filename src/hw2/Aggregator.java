@@ -11,7 +11,11 @@ import hw1.RelationalOperator;
 import hw1.Tuple;
 import hw1.TupleDesc;
 import hw1.Type;
-
+/*
+ * Student 1 name: Fa Long (id:462512)
+ * Student 2 name: Zhuo Wei (id: 462473)
+ * Date: Oct 5th, 2019
+ */
 /**
  * A class to perform various aggregations, by accepting one tuple at a time
  * @author Doug Shook

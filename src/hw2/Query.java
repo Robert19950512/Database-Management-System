@@ -1,8 +1,11 @@
 package hw2;
-
+/*
+ * Student 1 name: Fa Long (id:462512)
+ * Student 2 name: Zhuo Wei (id: 462473)
+ * Date: Oct 5th, 2019
+ */
 import java.util.ArrayList;
 import java.util.List;
-
 import hw1.Catalog;
 import hw1.Database;
 import net.sf.jsqlparser.JSQLParserException;
