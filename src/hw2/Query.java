@@ -61,7 +61,6 @@ public class Query {
 				EqualsTo joinExpression = (EqualsTo) jo.getOnExpression();		
 				Column leftEx = (Column) joinExpression.getLeftExpression();
 				Column rightEx = (Column) joinExpression.getRightExpression();
-				String name = leftEx.getColumnName();
 				if (leftEx.getTable().getName().equals(right.getName())) {
 					// left and right's column are reversed, reverse it back
 					Column temp = leftEx;
