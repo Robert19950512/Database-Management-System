@@ -823,9 +823,9 @@ public class HW3Tests {
 		ArrayList<Field> k = in.getKeys();
 		ArrayList<Node> c = in.getChildren();
 		
-		assertTrue(k.get(3).compare(RelationalOperator.EQ, new IntField(7)) || k.get(2).compare(RelationalOperator.EQ, new IntField(7)));
+		assertTrue(k.get(0).compare(RelationalOperator.EQ, new IntField(7)) || k.get(0).compare(RelationalOperator.EQ, new IntField(7)));
 		assertTrue(k.get(1).compare(RelationalOperator.EQ, new IntField(7)));
-		assertTrue(k.size() == 1);
+		assertTrue(k.size() == 2);
 		
 		LeafNode c0 = (LeafNode)c.get(0);
 		LeafNode c1 = (LeafNode)c.get(1);
@@ -840,11 +840,11 @@ public class HW3Tests {
 		assertTrue(c0Entities.get(1).getField().compare(RelationalOperator.EQ, new IntField(2)));
 		
 		ArrayList<Entry> c1Entities = c1.getEntries();
-		assertTrue(c0Entities.get(0).getField().compare(RelationalOperator.EQ, new IntField(3)));
-		assertTrue(c0Entities.get(1).getField().compare(RelationalOperator.EQ, new IntField(7)));
+		assertTrue(c1Entities.get(0).getField().compare(RelationalOperator.EQ, new IntField(3)));
+		assertTrue(c1Entities.get(1).getField().compare(RelationalOperator.EQ, new IntField(7)));
 		
 		//check values in right node
-		ArrayList<Entry> c1Entities = c2.getEntries();
+		ArrayList<Entry> c2Entities = c2.getEntries();
 		assertTrue(c2Entities.get(0).getField().compare(RelationalOperator.EQ, new IntField(9)));
 		assertTrue(c2Entities.get(1).getField().compare(RelationalOperator.EQ, new IntField(10)));
 		assertTrue(c2Entities.get(2).getField().compare(RelationalOperator.EQ, new IntField(12)));
