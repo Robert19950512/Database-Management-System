@@ -823,12 +823,13 @@ public class HW3Tests {
 		ArrayList<Field> k = in.getKeys();
 		ArrayList<Node> c = in.getChildren();
 		
-		assertTrue(k.get(0).compare(RelationalOperator.EQ, new IntField(7)));
+		assertTrue(k.get(3).compare(RelationalOperator.EQ, new IntField(7)) || k.get(2).compare(RelationalOperator.EQ, new IntField(7)));
+		assertTrue(k.get(1).compare(RelationalOperator.EQ, new IntField(7)));
 		assertTrue(k.size() == 1);
 		
 		LeafNode c0 = (LeafNode)c.get(0);
 		LeafNode c1 = (LeafNode)c.get(1);
-		LeafNode c2 (LeafNode)c.get(2);
+		LeafNode c2 = (LeafNode)c.get(2);
 		assertTrue(c0.isLeafNode());
 		assertTrue(c1.isLeafNode());
 		assertTrue(c2.isLeafNode());
