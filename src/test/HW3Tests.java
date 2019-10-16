@@ -828,19 +828,25 @@ public class HW3Tests {
 		
 		LeafNode c0 = (LeafNode)c.get(0);
 		LeafNode c1 = (LeafNode)c.get(1);
+		LeafNode c2 (LeafNode)c.get(2);
 		assertTrue(c0.isLeafNode());
 		assertTrue(c1.isLeafNode());
+		assertTrue(c2.isLeafNode());
 		
 		//check values in left node
 		ArrayList<Entry> c0Entities = c0.getEntries();
 		assertTrue(c0Entities.get(0).getField().compare(RelationalOperator.EQ, new IntField(1)));
 		assertTrue(c0Entities.get(1).getField().compare(RelationalOperator.EQ, new IntField(2)));
-		assertTrue(c0Entities.get(2).getField().compare(RelationalOperator.EQ, new IntField(7)));
+		
+		ArrayList<Entry> c1Entities = c1.getEntries();
+		assertTrue(c0Entities.get(0).getField().compare(RelationalOperator.EQ, new IntField(3)));
+		assertTrue(c0Entities.get(1).getField().compare(RelationalOperator.EQ, new IntField(7)));
 		
 		//check values in right node
-		ArrayList<Entry> c1Entities = c1.getEntries();
-		assertTrue(c1Entities.get(0).getField().compare(RelationalOperator.EQ, new IntField(9)));
-		assertTrue(c1Entities.get(1).getField().compare(RelationalOperator.EQ, new IntField(12)));
+		ArrayList<Entry> c1Entities = c2.getEntries();
+		assertTrue(c2Entities.get(0).getField().compare(RelationalOperator.EQ, new IntField(9)));
+		assertTrue(c2Entities.get(1).getField().compare(RelationalOperator.EQ, new IntField(10)));
+		assertTrue(c2Entities.get(2).getField().compare(RelationalOperator.EQ, new IntField(12)));
 
 	}
 
