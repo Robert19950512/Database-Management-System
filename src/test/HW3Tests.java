@@ -269,7 +269,7 @@ public class HW3Tests {
 		ArrayList<Field> kl = l.getKeys();
 		ArrayList<Node> cl = l.getChildren();
 
-		assertTrue(kl.get(0).compare(RelationalOperator.EQ, new IntField(1)));
+		assertTrue(kl.get(0).compare(RelationalOperator.EQ, new IntField(1)) || kl.get(0).compare(RelationalOperator.EQ, new IntField(4)));
 
 		//get left node's children, verify
 		Node ll = cl.get(0);
