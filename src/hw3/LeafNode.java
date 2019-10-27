@@ -56,5 +56,23 @@ public class LeafNode implements Node {
 	public void setEntries(ArrayList<Entry> newEntries) {
 		this.entries = newEntries;
 	}
+	
+	public LeafNode split() {
+		// split current node to 2 nodes, the current node will become the left one
+		ArrayList<Entry> newLeft = new ArrayList<>();
+		ArrayList<Entry> newRight = new ArrayList<>();
+		for (int i = 0 ; i < Math.ceil(((double)this.getEntries().size())/2) ; i ++) {
+			newLeft.add(this.getEntries().get(i));
+		}
+		for (int i = newLeft.size(); i < this.getEntries().size() ; i ++) {
+			newRight.add(this.getEntries().get(i));
+		}
+		LeafNode rightNode = new LeafNode(this.getDegree());
+		this.setEntries(newLeft);
+		rightNode.setEntries(newRight);
+		this.setNext(rightNode);
+		rightNode.setPrev(this);
+		return rightNode;
+	}
 
 }

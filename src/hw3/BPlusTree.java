@@ -76,20 +76,14 @@ public class BPlusTree {
 			return;
     	} else {
     		// need to split;
-    		ArrayList<Entry> newLeft = new ArrayList<>();
-    		ArrayList<Entry> newRight = new ArrayList<>();
-    		for (int i = 0 ; i < Math.ceil(((double)theLeaf.getEntries().size())/2) ; i ++) {
-    			newLeft.add(theLeaf.getEntries().get(i));
+    		LeafNode rightNode = theLeaf.split();
+    		if (theLeaf.getParent() != null) {
+    			theLeaf.getParent().addNewChild(theLeaf, rightNode);
+    		} else {
+    			InnerNode newInner = new InnerNode(this.pInner);
+    			newInner.addNewChild(theLeaf, rightNode);
     		}
-    		for (int i = newLeft.size(); i < theLeaf.getEntries().size() ; i ++) {
-    			newRight.add(theLeaf.getEntries().get(i));
-    		}
-    		LeafNode rightNode = new LeafNode(this.pLeaf);
-    		theLeaf.setEntries(newLeft);
-    		rightNode.setEntries(newRight);
-    		theLeaf.setNext(rightNode);
-    		rightNode.setPrev(theLeaf);
-    		theLeaf.getParent().addNewChildren(theLeaf, rightNode);
+    		
     		
     		
     	}
