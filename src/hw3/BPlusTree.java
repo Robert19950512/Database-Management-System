@@ -1,6 +1,8 @@
 package hw3;
 
 
+import java.util.ArrayList;
+
 import hw1.Field;
 import hw1.RelationalOperator;
 
@@ -36,9 +38,14 @@ public class BPlusTree {
     		}
     		return null;
     	}
-    	for (Field key : ((InnerNode)root).getKeys()) {
-    		if (k.compare(LTE, f))
+    	ArrayList<Field> keys = ((InnerNode)root).getKeys();
+    	ArrayList<Node> children = ((InnerNode)root).getChildren();
+    	for (int i = 0; i < keys.size(); i++) {	
+    		if (keys.get(i).compare(RelationalOperator.GTE, f) == true) {
+    			return searchHelper(f, children.get(i));
+    		}	
     	}
+    	return searchHelper(f, children.get(keys.size()));
     	
     }
     
