@@ -13,7 +13,7 @@ public class InnerNode implements Node {
 	public InnerNode(int degree) {
 		//your code here
 		this.degree = degree;
-		this.minPointer = (int) Math.ceil(degree / 2);
+		this.minPointer = (int) Math.ceil((double) degree / 2);
 		this.children = new ArrayList<Node> (degree);
 		this.keys = new ArrayList<Field> (degree - 1);
 	}

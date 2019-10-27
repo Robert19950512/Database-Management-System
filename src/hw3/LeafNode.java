@@ -4,12 +4,12 @@ import java.util.ArrayList;
 
 public class LeafNode implements Node {
 	private int degree;
-	private int miniEntry;
+	private int minEntry;
 	ArrayList<Entry> entries;
 	
 	public LeafNode(int degree) {
 		this.degree = degree;
-		this.miniEntry = (int) Math.ceil((double) degree / 2);
+		this.minEntry = (int) Math.ceil((double) degree / 2);
 		entries = new ArrayList<>();
 	}
 	
@@ -27,7 +27,7 @@ public class LeafNode implements Node {
 		return true;
 	}
 	public int getMiniEntry() {
-		return this.miniEntry;
+		return this.minEntry;
 	}
 
 }
