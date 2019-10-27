@@ -15,8 +15,8 @@ public class InnerNode implements Node {
 		//your code here
 		this.degree = degree;
 		this.minPointer = (int) Math.ceil((double) degree / 2);
-		this.children = new ArrayList<Node> (degree);
-		this.keys = new ArrayList<Field> (degree - 1);
+		this.children = new ArrayList<Node>;
+		this.keys = new ArrayList<Field>;
 	}
 	
 	public ArrayList<Field> getKeys() {
@@ -40,8 +40,13 @@ public class InnerNode implements Node {
 	
 	public void updatekey (Field newkey) {
 		// when a new key is pushed from its children
+		for(int i = 0; i <) 
 	}
-	public void addNewChildren (Node children) {
+	public void addNewChild (Node child) {
+		if(this.children.size() == this.degree) {
+			
+			
+		}
 		// when a new children needs to be added
 	}
 
