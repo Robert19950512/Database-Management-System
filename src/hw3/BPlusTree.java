@@ -89,6 +89,7 @@ public class BPlusTree {
     		rightNode.setEntries(newRight);
     		theLeaf.setNext(rightNode);
     		rightNode.setPrev(theLeaf);
+    		theLeaf.getParent().addNewChildren(theLeaf, rightNode);
     		
     		
     	}

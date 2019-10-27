@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import hw1.Field;
+import hw1.RelationalOperator;
 
 public class InnerNode implements Node {
 	int degree;
@@ -15,8 +16,8 @@ public class InnerNode implements Node {
 		//your code here
 		this.degree = degree;
 		this.minPointer = (int) Math.ceil((double) degree / 2);
-		this.children = new ArrayList<Node>;
-		this.keys = new ArrayList<Field>;
+		this.children = new ArrayList<Node> ();
+		this.keys = new ArrayList<Field> ();
 	}
 	
 	public ArrayList<Field> getKeys() {
@@ -40,14 +41,17 @@ public class InnerNode implements Node {
 	
 	public void updatekey (Field newkey) {
 		// when a new key is pushed from its children
-		for(int i = 0; i <) 
+		for(int i = 0; i < keys.size(); i++) {
+			if(newkey.compare(RelationalOperator.LTE, keys.get(i)) == true) {
+				
+			}
+		}
 	}
-	public void addNewChild (Node child) {
+
+	public void addNewChild (Node oldNode, Node newNode) {
 		if(this.children.size() == this.degree) {
 			
-			
 		}
-		// when a new children needs to be added
 	}
 
 }
