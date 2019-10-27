@@ -1,19 +1,54 @@
 package hw3;
 
 
+import java.util.ArrayList;
+
 import hw1.Field;
 import hw1.RelationalOperator;
 
 public class BPlusTree {
+	int pInner;
+	int pLeaf;
+	Node root;
+	
     
     public BPlusTree(int pInner, int pLeaf) {
     	//your code here
+    	this.pInner = pInner;
+    	this.pLeaf = pLeaf;
+    	this.root = null;
     }
     
     public LeafNode search(Field f) {
     	//your code here
-    	return null;
+    	//corner case
+    	if (root == null) {
+    		return null;
+    	}
+    	return searchHelper(f, this.root);
     }
+    private LeafNode searchHelper(Field f, Node root) {
+    	//base case
+    	if (root.isLeafNode() == true) {
+    		//iterate all entries in this leafNode to check whether f exist
+    		for (Entry entry: ((LeafNode)root).getEntries()) {
+    			if (entry.getField().equals(f)) {
+    				return (LeafNode)root;
+    			}
+    		}
+    		return null;
+    	}
+    	ArrayList<Field> keys = ((InnerNode)root).getKeys();
+    	ArrayList<Node> children = ((InnerNode)root).getChildren();
+    	for (int i = 0; i < keys.size(); i++) {	
+    		if (keys.get(i).compare(RelationalOperator.GTE, f) == true) {
+    			return searchHelper(f, children.get(i));
+    		}	
+    	}
+    	return searchHelper(f, children.get(keys.size()));
+    	
+    }
+    
     
     public void insert(Entry e) {
     	if (search(e.getField()) != null) {
