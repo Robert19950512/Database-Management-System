@@ -41,7 +41,7 @@ public class InnerNode implements Node {
 	public void updatekey (Field newkey) {
 		// when a new key is pushed from its children
 	}
-	public void addNewChildren (Node left, Node right) {
+	public void addNewChildren (Node oldNode, Node newNode) {
 		// when a new children needs to be added
 	}
 
