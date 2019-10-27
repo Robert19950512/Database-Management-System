@@ -9,6 +9,8 @@ public class LeafNode implements Node {
 	private LeafNode next;
 	ArrayList<Entry> entries;
 	
+	private InnerNode parent;
+	
 	public LeafNode(int degree) {
 		this.degree = degree;
 		this.minEntry = (int) Math.ceil((double) degree / 2);
@@ -42,6 +44,13 @@ public class LeafNode implements Node {
 	}
 	public LeafNode getNext() {
 		return this.next;
+	}
+	
+	public InnerNode getParent() {
+		return this.parent;
+	}
+	public void setParent(InnerNode parent) {
+		this.parent = parent;
 	}
 
 }

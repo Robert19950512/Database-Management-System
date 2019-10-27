@@ -10,6 +10,7 @@ public class InnerNode implements Node {
 	int minPointer;
 	ArrayList<Node> children;
 	ArrayList<Field> keys;
+	InnerNode parent;
 	public InnerNode(int degree) {
 		//your code here
 		this.degree = degree;
