@@ -2,6 +2,7 @@ package hw3;
 
 
 import hw1.Field;
+import hw1.RelationalOperator;
 
 public class BPlusTree {
 	int pInner;
@@ -43,7 +44,26 @@ public class BPlusTree {
     
     
     public void insert(Entry e) {
+    	if (search(e.getField()) != null) {
+    		return;
+    	}
+    	
+    	
     	//your code here
+    }
+    // find the leafNode that e needs to get insert into, this is a helper function
+    // for insert(Entry e)
+    public LeafNode findleaf(Entry e, Node cur) {
+    	if (cur.isLeafNode()) {
+    		return (LeafNode) cur;
+    	}
+    	InnerNode curInner = (InnerNode) cur;
+    	for (int i = 0 ; i < curInner.degree ; i ++) {
+    		if (e.getField().compare(RelationalOperator.LTE, curInner.keys.get(i))) {
+    			return findleaf(e,curInner.getChildren().get(i));
+    		}
+    	}
+    	return findleaf(e,curInner.getChildren().get(curInner.getChildren().size() - 1));
     }
     
     public void delete(Entry e) {

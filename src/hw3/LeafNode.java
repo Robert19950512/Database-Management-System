@@ -5,6 +5,8 @@ import java.util.ArrayList;
 public class LeafNode implements Node {
 	private int degree;
 	private int minEntry;
+	private LeafNode prev;
+	private LeafNode next;
 	ArrayList<Entry> entries;
 	
 	public LeafNode(int degree) {
@@ -28,6 +30,18 @@ public class LeafNode implements Node {
 	}
 	public int getMiniEntry() {
 		return this.minEntry;
+	}
+	public void setPrev (LeafNode prev) {
+		this.prev = prev;
+	}
+	public void setNext(LeafNode next) {
+		this.next = next;
+	}
+	public LeafNode getPrev() {
+		return this.prev;
+	}
+	public LeafNode getNext() {
+		return this.next;
 	}
 
 }
