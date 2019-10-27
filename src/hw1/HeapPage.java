@@ -130,6 +130,7 @@ public class HeapPage {
 		for (int index = 0 ; index < this.numSlots ; index++) {
 			if(!slotOccupied(index)) {
 				tuples[index] = t;
+				t.setPid(this.id);
 				setSlotOccupied(index, true);
 				isfull = false;
 				break;

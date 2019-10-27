@@ -37,5 +37,12 @@ public class InnerNode implements Node {
 	public boolean isLeafNode() {
 		return false;
 	}
+	
+	public void updatekey (Field newkey) {
+		// when a new key is pushed from its children
+	}
+	public void addNewChildren (Node children) {
+		// when a new children needs to be added
+	}
 
 }

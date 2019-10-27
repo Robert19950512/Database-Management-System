@@ -52,5 +52,9 @@ public class LeafNode implements Node {
 	public void setParent(InnerNode parent) {
 		this.parent = parent;
 	}
+	
+	public void setEntries(ArrayList<Entry> newEntries) {
+		this.entries = newEntries;
+	}
 
 }
