@@ -54,6 +54,13 @@ public class BPlusTree {
     	if (search(e.getField()) != null) {
     		return;
     	}
+    	if (this.getRoot() == null) {
+    		// first insert
+    		LeafNode theLeaf = new LeafNode(this.pLeaf);
+    		theLeaf.getEntries().add(e);
+    		this.root = theLeaf;
+    		return;
+    	}
     	LeafNode theLeaf = findleaf(e,this.getRoot());
     	
 		if (theLeaf.getEntries().size() == 0) {
@@ -82,6 +89,7 @@ public class BPlusTree {
     		} else {
     			InnerNode newInner = new InnerNode(this.pInner);
     			newInner.addNewChild(theLeaf, rightNode);
+    			this.root = newInner;
     		}
     		
     		
