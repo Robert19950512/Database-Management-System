@@ -70,9 +70,18 @@ public class LeafNode implements Node {
 		LeafNode rightNode = new LeafNode(this.getDegree());
 		this.setEntries(newLeft);
 		rightNode.setEntries(newRight);
+		rightNode.setNext(this.next);
 		this.setNext(rightNode);
 		rightNode.setPrev(this);
 		return rightNode;
+	}
+	
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Entry en : this.entries) {
+			sb.append(en.getField().toString());
+		}
+		return sb.toString();
 	}
 
 }

@@ -63,26 +63,34 @@ public class InnerNode implements Node {
 
 	public void addNewChild (Node oldNode, Node newNode) {
 		// add the node that is split out from an old node to its right
+		boolean added = false;
 		for (int i = 0 ; i < children.size() ; i++) {
 			if (children.get(i) == oldNode) {
 				children.add(i+1, newNode);
-				// find key that needs to update
-				if (oldNode.getClass() == InnerNode.class) {
-					// a innerNode with children being innerNode
-					InnerNode temp = (InnerNode) oldNode;
-					Field newKey = temp.keys.get(temp.keys.size() - 1);
-					// when innerNode push keys up, they no longer possess the key
-					temp.keys.remove(temp.keys.size() - 1);
-					updateKey(newKey);
-					
-				} else {
-					LeafNode temp = (LeafNode) oldNode;
-					Field newKey = temp.entries.get(temp.entries.size() - 1).getField();
-					updateKey(newKey);
-					// a innerNode with children being leafNode
-				}
+				added = true;
+				
 				break;
 			}
+		}
+		if (added == false) {
+			children.add(oldNode);
+			children.add(newNode);
+			added =true;
+		}
+		// find key that needs to update
+		if (oldNode.getClass() == InnerNode.class) {
+			// a innerNode with children being innerNode
+			InnerNode temp = (InnerNode) oldNode;
+			Field newKey = temp.keys.get(temp.keys.size() - 1);
+			// when innerNode push keys up, they no longer possess the key
+			temp.keys.remove(temp.keys.size() - 1);
+			updateKey(newKey);
+			
+		} else {
+			LeafNode temp = (LeafNode) oldNode;
+			Field newKey = temp.entries.get(temp.entries.size() - 1).getField();
+			updateKey(newKey);
+			// a innerNode with children being leafNode
 		}
 	}
 	
@@ -98,10 +106,10 @@ public class InnerNode implements Node {
 		}
 		ArrayList<Node> newLeftChildren = new ArrayList<>();
 		ArrayList<Node> newRightChildren = new ArrayList<>();
-		for (int i = 0 ; i <= newLeft.size(); i ++) {
+		for (int i = 0 ; i < newLeft.size(); i ++) {
 			newLeftChildren.add(this.getChildren().get(i));
 		}
-		for (int i = newLeft.size() + 1; i < children.size() ;i++ ) {
+		for (int i = newLeft.size(); i < children.size() ;i++ ) {
 			newRightChildren.add(this.getChildren().get(i));
 		}
 		this.children = newLeftChildren;
@@ -117,7 +125,15 @@ public class InnerNode implements Node {
 	public void setChildren (ArrayList<Node> newChildren) {
 		this.children = newChildren;
 	}
-
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Field field: keys) {
+			sb.append(field.toString());
+		}
+		return sb.toString();
+	}
 		
 
 }

@@ -102,6 +102,8 @@ public class BPlusTree {
     		} else {
     			InnerNode newInner = new InnerNode(this.pInner);
     			newInner.addNewChild(theLeaf, rightNode);
+    			theLeaf.setParent(newInner);
+    			rightNode.setParent(newInner);
     			this.root = newInner;
     		}	
     	}  	
@@ -115,7 +117,7 @@ public class BPlusTree {
     		return (LeafNode) cur;
     	}
     	InnerNode curInner = (InnerNode) cur;
-    	for (int i = 0 ; i < curInner.degree ; i ++) {
+    	for (int i = 0 ; i < curInner.getKeys().size() ; i ++) {
     		if (e.getField().compare(RelationalOperator.LTE, curInner.keys.get(i))) {
     			return findleaf(e,curInner.getChildren().get(i));
     		}
