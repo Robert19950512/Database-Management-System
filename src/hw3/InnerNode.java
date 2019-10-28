@@ -39,6 +39,13 @@ public class InnerNode implements Node {
 		return false;
 	}
 	
+	public void setKeys (ArrayList<Field> newKeys) {
+		this.keys = newKeys;
+	}
+	public void setChildren (ArrayList<Node> newChildren) {
+		this.children = newChildren;
+	}
+	
 	public void updatekey (Field newkey) {
 		// when a new key is pushed from its children
 		for(int i = 0; i < keys.size(); i++) {
