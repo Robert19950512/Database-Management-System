@@ -56,12 +56,13 @@ public class InnerNode implements Node {
 			return;
 		} else {
 			InnerNode newNode = split();
+			Field updateKey = this.keys.get(this.keys.size() - 1);
 			if (this.parent != null) {
-				addNewChild(this, newNode);
+				this.parent.updateKey(updateKey);
 			} else {
-				Field parentKey = this.keys.get(this.keys.size() - 1);
-				InnerNode newParent = new InnerNode(this.degree);
-				newParent.keys.add(parentKey);
+				InnerNode newRoot = new InnerNode(this.degree);
+				newRoot.keys.add(updateKey);
+				this.root = newRoot;
 			}
 		}
 		
