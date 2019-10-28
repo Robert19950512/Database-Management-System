@@ -39,6 +39,7 @@ public class InnerNode implements Node {
 		return false;
 	}
 	
+
 	public void updateKey (Field newKey) { // when a new key is pushed from its children
 		// add in
 		
@@ -49,7 +50,7 @@ public class InnerNode implements Node {
 			}
 			newKeys.add(keys.get(i));
 		}
-		this.setKeys(newKey);
+		setKeys(newKeys);
 		//check whether need to split
 		if(newKeys.size() <= degree - 1) {
 			return;
@@ -87,5 +88,13 @@ public class InnerNode implements Node {
 		rightNode.setKeys(newRight);
 		return rightNode;
 	}
+	public void setKeys (ArrayList<Field> newKeys) {
+		this.keys = newKeys;
+	}
+	public void setChildren (ArrayList<Node> newChildren) {
+		this.children = newChildren;
+	}
+
+		
 
 }
