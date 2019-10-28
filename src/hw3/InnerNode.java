@@ -39,19 +39,53 @@ public class InnerNode implements Node {
 		return false;
 	}
 	
-	public void updatekey (Field newkey) {
-		// when a new key is pushed from its children
+	public void updateKey (Field newKey) { // when a new key is pushed from its children
+		// add in
+		
+		ArrayList<Field> newKeys = new ArrayList<>();
 		for(int i = 0; i < keys.size(); i++) {
-			if(newkey.compare(RelationalOperator.LTE, keys.get(i)) == true) {
-				
+			if(newKey.compare(RelationalOperator.LTE, keys.get(i)) == true) {
+				newKeys.add(newKey);
+			}
+			newKeys.add(keys.get(i));
+		}
+		this.setKeys(newKey);
+		//check whether need to split
+		if(newKeys.size() <= degree - 1) {
+			return;
+		} else {
+			InnerNode newNode = split();
+			if (this.parent != null) {
+				addNewChild(this, newNode);
+			} else {
+				Field parentKey = this.keys.get(this.keys.size() - 1);
+				InnerNode newParent = new InnerNode(this.degree);
+				newParent.keys.add(parentKey);
 			}
 		}
+		
 	}
 
 	public void addNewChild (Node oldNode, Node newNode) {
 		if(this.children.size() == this.degree) {
 			
 		}
+	}
+	
+	public InnerNode split() {
+		// split current node to 2 nodes, the current node will become the left one
+		ArrayList<Field> newLeft = new ArrayList<>();
+		ArrayList<Field> newRight = new ArrayList<>();
+		for (int i = 0 ; i < Math.ceil(((double)this.getKeys().size())/2); i ++) {
+			newLeft.add(this.getKeys().get(i));
+		}
+		for (int i = newLeft.size(); i < this.getKeys().size(); i ++) {
+			newRight.add(this.getKeys().get(i));
+		}
+		InnerNode rightNode = new InnerNode(this.getDegree());
+		this.setKeys(newLeft);
+		rightNode.setKeys(newRight);
+		return rightNode;
 	}
 
 }
