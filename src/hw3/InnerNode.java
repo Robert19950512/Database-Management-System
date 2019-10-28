@@ -40,9 +40,9 @@ public class InnerNode implements Node {
 	}
 	
 
-	public void updateKey (Field newKey) { // when a new key is pushed from its children
+	public void updateKey (Field newKey) { 
+		// when a new key is pushed from its children
 		// add in
-		
 		ArrayList<Field> newKeys = new ArrayList<>();
 		for(int i = 0; i < keys.size(); i++) {
 			if(newKey.compare(RelationalOperator.LTE, keys.get(i)) == true) {
@@ -84,9 +84,19 @@ public class InnerNode implements Node {
 		for (int i = newLeft.size(); i < this.getKeys().size(); i ++) {
 			newRight.add(this.getKeys().get(i));
 		}
+		ArrayList<Node> newLeftChildren = new ArrayList<>();
+		ArrayList<Node> newRightChildren = new ArrayList<>();
+		for (int i = 0 ; i <= newLeft.size(); i ++) {
+			newLeftChildren.add(this.getChildren().get(i));
+		}
+		for (int i = newLeft.size() + 1; i < children.size() ;i++ ) {
+			newRightChildren.add(this.getChildren().get(i));
+		}
+		this.children = newLeftChildren;
+		this.keys = newLeft;
 		InnerNode rightNode = new InnerNode(this.getDegree());
-		this.setKeys(newLeft);
 		rightNode.setKeys(newRight);
+		rightNode.setChildren(newRightChildren);
 		return rightNode;
 	}
 	public void setKeys (ArrayList<Field> newKeys) {

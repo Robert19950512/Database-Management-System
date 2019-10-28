@@ -90,14 +90,8 @@ public class BPlusTree {
     			InnerNode newInner = new InnerNode(this.pInner);
     			newInner.addNewChild(theLeaf, rightNode);
     			this.root = newInner;
-    		}
-    		
-    		
-    		
-    	}
-    	
-    	
-    	
+    		}	
+    	}  	
     	//your code here
     }
     // find the leafNode that e needs to get insert into, this is a helper function
