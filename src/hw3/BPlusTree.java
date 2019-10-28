@@ -86,6 +86,19 @@ public class BPlusTree {
     		LeafNode rightNode = theLeaf.split();
     		if (theLeaf.getParent() != null) {
     			theLeaf.getParent().addNewChild(theLeaf, rightNode);
+    			InnerNode parent = theLeaf.getParent();
+    			while (parent.getChildren().size() > parent.getDegree()) {
+    				InnerNode newInnerRight = parent.split();
+    				if (parent.parent != null) {
+    					parent.parent.addNewChild(parent, newInnerRight);
+    					parent = parent.parent;
+    				} else {
+    					InnerNode newRoot = new InnerNode(this.pInner);
+    					newRoot.addNewChild(parent, newInnerRight);
+    					this.root = newRoot;
+    					parent = newRoot;
+    				}
+    			}
     		} else {
     			InnerNode newInner = new InnerNode(this.pInner);
     			newInner.addNewChild(theLeaf, rightNode);
@@ -94,6 +107,7 @@ public class BPlusTree {
     	}  	
     	//your code here
     }
+    
     // find the leafNode that e needs to get insert into, this is a helper function
     // for insert(Entry e)
     public LeafNode findleaf(Entry e, Node cur) {

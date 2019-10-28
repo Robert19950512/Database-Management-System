@@ -11,6 +11,7 @@ public class InnerNode implements Node {
 	int minPointer;
 	ArrayList<Node> children;
 	ArrayList<Field> keys;
+	
 	InnerNode parent;
 	public InnerNode(int degree) {
 		//your code here
@@ -38,39 +39,50 @@ public class InnerNode implements Node {
 	public boolean isLeafNode() {
 		return false;
 	}
-	
-
 	public void updateKey (Field newKey) { 
 		// when a new key is pushed from its children
 		// add in
-		ArrayList<Field> newKeys = new ArrayList<>();
-		for(int i = 0; i < keys.size(); i++) {
-			if(newKey.compare(RelationalOperator.LTE, keys.get(i)) == true) {
-				newKeys.add(newKey);
+		if (keys.size() == 0) {
+			keys.add(newKey);
+		}else {
+			boolean isSet = false;
+			for(int i = 0; i < keys.size(); i++) {
+				if(newKey.compare(RelationalOperator.LTE, keys.get(i)) == true) {	
+					keys.add(i, newKey);
+					isSet = true;
+					break;
+				}
 			}
-			newKeys.add(keys.get(i));
-		}
-		setKeys(newKeys);
-		//check whether need to split
-		if(newKeys.size() <= degree - 1) {
-			return;
-		} else {
-			InnerNode newNode = split();
-			Field updateKey = this.keys.get(this.keys.size() - 1);
-			if (this.parent != null) {
-				this.parent.updateKey(updateKey);
-			} else {
-				InnerNode newRoot = new InnerNode(this.degree);
-				newRoot.keys.add(updateKey);
-				this.root = newRoot;
+			if (isSet == false) {
+				keys.add(newKey);
 			}
+			
 		}
 		
 	}
 
 	public void addNewChild (Node oldNode, Node newNode) {
-		if(this.children.size() == this.degree) {
-			
+		// add the node that is split out from an old node to its right
+		for (int i = 0 ; i < children.size() ; i++) {
+			if (children.get(i) == oldNode) {
+				children.add(i+1, newNode);
+				// find key that needs to update
+				if (oldNode.getClass() == InnerNode.class) {
+					// a innerNode with children being innerNode
+					InnerNode temp = (InnerNode) oldNode;
+					Field newKey = temp.keys.get(temp.keys.size() - 1);
+					// when innerNode push keys up, they no longer possess the key
+					temp.keys.remove(temp.keys.size() - 1);
+					updateKey(newKey);
+					
+				} else {
+					LeafNode temp = (LeafNode) oldNode;
+					Field newKey = temp.entries.get(temp.entries.size() - 1).getField();
+					updateKey(newKey);
+					// a innerNode with children being leafNode
+				}
+				break;
+			}
 		}
 	}
 	
