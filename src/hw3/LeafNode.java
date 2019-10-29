@@ -1,7 +1,6 @@
 package hw3;
 
 import java.util.ArrayList;
-
 import hw1.RelationalOperator;
 
 public class LeafNode implements Node {
@@ -80,7 +79,24 @@ public class LeafNode implements Node {
 	public LeafNode merge(LeafNode other) {
 		//merge another leafNode with current leafNode,
 		//other is always at right side of current node
-		return null;
+		
+		ArrayList<Entry> newEntries = new ArrayList<Entry>();
+		if (this.entries.size() == 0) {
+			newEntries = other.entries;
+		} else if (other.entries.size() == 0) {
+			newEntries = this.entries;
+		} else if(this.entries.get(0).getField().
+				compare(RelationalOperator.LTE, other.entries.get(0).getField())){
+			newEntries.addAll(this.entries);
+			newEntries.addAll(other.entries);
+			this.setNext(other.next);
+		} else {
+			newEntries.addAll(other.entries);
+			newEntries.addAll(this.entries);
+			this.setPrev(other.prev);
+		}
+		this.setEntries(newEntries);
+		return this;
 	}
 	
 	public LeafNode split() {
