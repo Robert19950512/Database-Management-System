@@ -153,9 +153,54 @@ public class BPlusTree {
     		} else {
     			// borrow failed, need to merge
     			// try merge with left
-    			if (theLeaf.getPrev() != null) {
-    				
+    			LeafNode merged = null;
+    			if (theLeaf.getPrev() != null && theLeaf.getPrev().getParent() == theLeaf.getParent()) {
+    				merged = theLeaf.getPrev().merge(theLeaf);
+    				InnerNode parent = merged.getParent();
+    				for (int i = 0 ; i < parent.getChildren().size(); i ++) {
+    					if (parent.getChildren().get(i) == theLeaf) {
+    						// delete the leaf and corresponding key
+    						parent.getKeys().remove(i);
+    						parent.getChildren().remove(theLeaf);
+    						break;
+    					}
+    				}
+    
+    				if (parent.getChildren().size() < parent.minPointer) {
+    					if (parent == root) {
+    						if (parent.getChildren().size() == 1) {
+    							// no longer needed
+    							merged.setParent(null);
+    							this.root = merged;
+    							return;
+    						}
+    					} else {
+    						// borrow first
+        					InnerNode parentLeft = null;
+        					InnerNode parentRight = null;
+        					for (int i = 0 ; i < parent.parent.getChildren().size() ; i++) {
+        						if (parent.parent.getChildren().get(i) == parent) {
+        							if (i - 1 >= 0) {
+        								parentLeft = (InnerNode) parent.parent.getChildren().get(i - 1);
+        							}
+        							if (i + 1 < parent.parent.getChildren().size()) {
+        								parentRight = (InnerNode) parent.parent.getChildren().get(i + 1);
+        							}
+        							break;
+        						}
+        					}
+        					// borrow from left
+        					if (parentLeft != null && parentLeft.getChildren().size() > parentLeft.minPointer) {
+        						
+        					}
+    					}
+    					
+    				}
+    			}else if (theLeaf.getNext() != null && theLeaf.getNext().getParent() == theLeaf.getParent()) {
+    				merged = theLeaf.getNext().merge(theLeaf);
     			}
+    			
+    			
     			
     			
     		}
