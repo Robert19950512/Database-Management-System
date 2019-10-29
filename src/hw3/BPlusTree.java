@@ -178,6 +178,7 @@ public class BPlusTree {
     						// borrow first
         					InnerNode parentLeft = null;
         					InnerNode parentRight = null;
+        					int keyIndex = 0;
         					for (int i = 0 ; i < parent.parent.getChildren().size() ; i++) {
         						if (parent.parent.getChildren().get(i) == parent) {
         							if (i - 1 >= 0) {
@@ -186,12 +187,42 @@ public class BPlusTree {
         							if (i + 1 < parent.parent.getChildren().size()) {
         								parentRight = (InnerNode) parent.parent.getChildren().get(i + 1);
         							}
+        							keyIndex = i;
         							break;
         						}
         					}
         					// borrow from left
         					if (parentLeft != null && parentLeft.getChildren().size() > parentLeft.minPointer) {
+        						Node toMove = parentLeft.getChildren().remove(parentLeft.getChildren().size() - 1);
+        						Field passKey = parentLeft.getKeys().remove(parentLeft.getKeys().size() - 1);
+        						Field parentKey = parent.parent.getKeys().get(keyIndex);
+        						parent.parent.getKeys().set(keyIndex, passKey);
+        						parent.children.add(0, toMove);
+        						parent.getKeys().add(0, parentKey);
         						
+        					} else if (parentRight != null && parentRight.getChildren().size() > parentRight.minPointer) {
+        						// if can't borrow from left, try to borrow from right
+        						Node toMove = parentRight.getChildren().remove(0);
+        						Field passKey = parentRight.getKeys().remove(0);
+        						Field parentKey = parent.parent.getKeys().get(keyIndex);
+        						parent.parent.getKeys().set(keyIndex, passKey);
+        						parent.children.add(toMove);
+        						parent.getKeys().add(parentKey);
+        					} else {
+        						// no place to borrow, collapse the entire level
+        						InnerNode grandParent = parent.parent;
+        						ArrayList<Field> newKeys = new ArrayList<>();
+        						ArrayList<Node> newChildren = new ArrayList<>();
+        						for (int i = 0 ; i < grandParent.getChildren().size() ; i ++) {
+        							InnerNode curChildren = (InnerNode) grandParent.getChildren().get(i);
+        							newKeys.addAll(curChildren.getKeys());
+        							if (i < grandParent.getKeys().size()) {
+        								newKeys.add(grandParent.getKeys().get(i));
+        							}
+        							newChildren.addAll(curChildren.getChildren());
+        						}
+        						grandParent.setChildren(newChildren);
+        						grandParent.setKeys(newKeys);
         					}
     					}
     					
