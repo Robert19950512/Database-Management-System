@@ -79,7 +79,6 @@ public class LeafNode implements Node {
 	
 	public LeafNode merge(LeafNode other) {
 		//merge another leafNode with current leafNode,
-		//other is always at right side of current node
 		return null;
 	}
 	

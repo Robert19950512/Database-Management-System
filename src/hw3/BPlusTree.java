@@ -118,7 +118,7 @@ public class BPlusTree {
     	}
     	LeafNode theLeaf = findleaf(e,this.getRoot());
     	theLeaf.removeEntry(e);
-    	if (theLeaf.getEntries().size() < theLeaf.getMiniEntry()) {
+    	if (theLeaf.getEntries().size() < theLeaf.getMiniEntry() && theLeaf != root) {
     		// need to adjust the structure
     		// try to borrow
     		if (theLeaf.getPrev() != null && theLeaf.getPrev().getEntries().size() > theLeaf.getPrev().getMiniEntry()
@@ -152,6 +152,11 @@ public class BPlusTree {
     			
     		} else {
     			// borrow failed, need to merge
+    			// try merge with left
+    			if (theLeaf.getPrev() != null) {
+    				
+    			}
+    			
     			
     		}
     	}
