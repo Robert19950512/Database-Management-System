@@ -2,6 +2,8 @@ package hw3;
 
 import java.util.ArrayList;
 
+import hw1.RelationalOperator;
+
 public class LeafNode implements Node {
 	private int degree;
 	private int minEntry;
@@ -57,6 +59,30 @@ public class LeafNode implements Node {
 		this.entries = newEntries;
 	}
 	
+	public void addToEntries(Entry e) {
+		if (entries.size() == 0) {
+			entries.add(e);
+			return;
+		}
+		boolean added = false;
+		for (int i = 0 ; i < entries.size() ; i ++) {
+			if (e.getField().compare(RelationalOperator.LT, entries.get(i).getField())){
+				entries.add(i, e);
+				added = true;
+				break;
+			}
+		}
+		if (added == false) {
+			entries.add(e);
+		}	
+	}
+	
+	public LeafNode merge(LeafNode other) {
+		//merge another leafNode with current leafNode,
+		//other is always at right side of current node
+		return null;
+	}
+	
 	public LeafNode split() {
 		// split current node to 2 nodes, the current node will become the left one
 		ArrayList<Entry> newLeft = new ArrayList<>();
@@ -74,6 +100,10 @@ public class LeafNode implements Node {
 		this.setNext(rightNode);
 		rightNode.setPrev(this);
 		return rightNode;
+	}
+	
+	public void removeEntry(Entry e) {
+		entries.remove(e);
 	}
 	
 	public String toString() {

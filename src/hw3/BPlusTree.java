@@ -62,21 +62,7 @@ public class BPlusTree {
     		return;
     	}
     	LeafNode theLeaf = findleaf(e,this.getRoot());
-    	
-		if (theLeaf.getEntries().size() == 0) {
-			theLeaf.getEntries().add(e);
-		}
-		boolean added = false;
-		for (int i = 0 ; i < theLeaf.getEntries().size() ; i ++) {
-			if (e.getField().compare(RelationalOperator.LT, theLeaf.getEntries().get(i).getField())){
-				theLeaf.getEntries().add(i, e);
-				added = true;
-				break;
-			}
-		}
-		if (added == false) {
-			theLeaf.getEntries().add(e);
-		}	
+    	theLeaf.addToEntries(e);
 		
 		if (theLeaf.getEntries().size() <= theLeaf.getDegree()) {
 			// simple case, if there is empty spot, directly insert;
@@ -111,7 +97,7 @@ public class BPlusTree {
     }
     
     // find the leafNode that e needs to get insert into, this is a helper function
-    // for insert(Entry e)
+    // for insert(Entry e) and delete
     public LeafNode findleaf(Entry e, Node cur) {
     	if (cur.isLeafNode()) {
     		return (LeafNode) cur;
@@ -127,6 +113,50 @@ public class BPlusTree {
     
     public void delete(Entry e) {
     	//your code here
+    	if (search(e.getField()) == null) {
+    		return;
+    	}
+    	LeafNode theLeaf = findleaf(e,this.getRoot());
+    	theLeaf.removeEntry(e);
+    	if (theLeaf.getEntries().size() < theLeaf.getMiniEntry()) {
+    		// need to adjust the structure
+    		// try to borrow
+    		if (theLeaf.getPrev() != null && theLeaf.getPrev().getEntries().size() > theLeaf.getPrev().getMiniEntry()
+    				&& theLeaf.getPrev().getParent() == theLeaf.getParent()) {
+				// borrow from left
+				LeafNode prev = theLeaf.getPrev();
+				Entry toMove = prev.getEntries().get(prev.getEntries().size() - 1);
+				prev.getEntries().remove(prev.getEntries().size() - 1);
+				theLeaf.addToEntries(toMove);
+				// update parent's key
+				InnerNode theParent = prev.getParent();
+				for (int i = 0 ; i < theParent.getChildren().size() ; i++) {
+					if (theParent.getChildren().get(i) == prev) {
+						theParent.getKeys().set(i, prev.getEntries().get(prev.getEntries().size() - 1).getField());
+					}
+				}
+    		} else if (theLeaf.getNext() != null && theLeaf.getNext().getEntries().size() > theLeaf.getNext().getMiniEntry()
+    				&& theLeaf.getNext().getParent() == theLeaf.getParent()) {
+    			// borrow from right
+    			LeafNode next = theLeaf.getNext();
+				Entry toMove = next.getEntries().get(0);
+				next.getEntries().remove(0);
+				theLeaf.addToEntries(toMove);
+				// update parent's key
+				InnerNode theParent = theLeaf.getParent();
+				for (int i = 0 ; i < theParent.getChildren().size() ; i++) {
+					if (theParent.getChildren().get(i) == theLeaf) {
+						theParent.getKeys().set(i, theLeaf.getEntries().get(theLeaf.getEntries().size() - 1).getField());
+					}
+				}
+    			
+    		} else {
+    			// borrow failed, need to merge
+    			
+    		}
+    	}
+    	
+    	
     }
     
     public Node getRoot() {
