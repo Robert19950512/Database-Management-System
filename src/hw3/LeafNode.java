@@ -1,5 +1,9 @@
 package hw3;
-
+/*
+ * Student 1 name: Fa Long (id:462512)
+ * Student 2 name: Zhuo Wei (id: 462473)
+ * Date: Oct 29th, 2019
+ */
 import java.util.ArrayList;
 import hw1.RelationalOperator;
 
