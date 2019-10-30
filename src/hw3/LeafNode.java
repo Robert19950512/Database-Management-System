@@ -80,19 +80,18 @@ public class LeafNode implements Node {
 		//merge another leafNode with current leafNode,
 		
 		ArrayList<Entry> newEntries = new ArrayList<Entry>();
-		if (this.entries.size() == 0) {
-			newEntries = other.entries;
-		} else if (other.entries.size() == 0) {
-			newEntries = this.entries;
-		} else if(this.entries.get(0).getField().
-				compare(RelationalOperator.LTE, other.entries.get(0).getField())){
-			newEntries.addAll(this.entries);
-			newEntries.addAll(other.entries);
-			this.setNext(other.next);
+		if (this.getNext() == other) {
+			newEntries.addAll(this.getEntries());
+			newEntries.addAll(other.getEntries());
+			if (other.getNext() != null) {
+				other.getNext().setPrev(this);
+			}
 		} else {
-			newEntries.addAll(other.entries);
-			newEntries.addAll(this.entries);
-			this.setPrev(other.prev);
+			newEntries.addAll(other.getEntries());
+			newEntries.addAll(this.getEntries());
+			if (other.getPrev() != null) {
+				other.getPrev().setNext(this);
+			}
 		}
 		this.setEntries(newEntries);
 		return this;
@@ -109,6 +108,9 @@ public class LeafNode implements Node {
 			newRight.add(this.getEntries().get(i));
 		}
 		LeafNode rightNode = new LeafNode(this.getDegree());
+		if (this.next != null) {
+			this.next.prev = rightNode;
+		}
 		this.setEntries(newLeft);
 		rightNode.setEntries(newRight);
 		rightNode.setNext(this.next);
@@ -118,7 +120,12 @@ public class LeafNode implements Node {
 	}
 	
 	public void removeEntry(Entry e) {
-		entries.remove(e);
+		for (Entry en : this.entries) {
+			if (en.getField().compare(RelationalOperator.EQ, e.getField())) {
+				entries.remove(en);
+				return;
+			}
+		}
 	}
 	
 	public String toString() {

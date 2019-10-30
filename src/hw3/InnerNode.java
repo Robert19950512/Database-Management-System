@@ -11,7 +11,6 @@ public class InnerNode implements Node {
 	int minPointer;
 	ArrayList<Node> children;
 	ArrayList<Field> keys;
-	
 	InnerNode parent;
 	public InnerNode(int degree) {
 		//your code here
@@ -92,10 +91,13 @@ public class InnerNode implements Node {
 			updateKey(newKey);
 			// a innerNode with children being leafNode
 		}
+		oldNode.setParent(this);
+		newNode.setParent(this);
 	}
 	
 	public InnerNode split() {
 		// split current node to 2 nodes, the current node will become the left one
+		InnerNode rightNode = new InnerNode(this.getDegree());
 		ArrayList<Field> newLeft = new ArrayList<>();
 		ArrayList<Field> newRight = new ArrayList<>();
 		for (int i = 0 ; i < Math.ceil(((double)this.getKeys().size())/2); i ++) {
@@ -110,13 +112,16 @@ public class InnerNode implements Node {
 			newLeftChildren.add(this.getChildren().get(i));
 		}
 		for (int i = newLeft.size(); i < children.size() ;i++ ) {
+			// need to transform the parent
+			this.getChildren().get(i).setParent(rightNode);
 			newRightChildren.add(this.getChildren().get(i));
 		}
 		this.children = newLeftChildren;
 		this.keys = newLeft;
-		InnerNode rightNode = new InnerNode(this.getDegree());
+		
 		rightNode.setKeys(newRight);
 		rightNode.setChildren(newRightChildren);
+		rightNode.setParent(this.getParent());
 		return rightNode;
 	}
 	public void setKeys (ArrayList<Field> newKeys) {
@@ -134,6 +139,19 @@ public class InnerNode implements Node {
 		}
 		return sb.toString();
 	}
+
+	@Override
+	public void setParent(InnerNode parent) {
+		this.parent = parent;
+		
+	}
+
+	@Override
+	public InnerNode getParent() {
+		// TODO Auto-generated method stub
+		return this.parent;
+	}
+
 		
 
 }

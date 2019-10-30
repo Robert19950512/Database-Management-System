@@ -74,11 +74,13 @@ public class BPlusTree {
     			theLeaf.getParent().addNewChild(theLeaf, rightNode);
     			InnerNode parent = theLeaf.getParent();
     			while (parent.getChildren().size() > parent.getDegree()) {
+    				// parent need to split
     				InnerNode newInnerRight = parent.split();
     				if (parent.parent != null) {
     					parent.parent.addNewChild(parent, newInnerRight);
     					parent = parent.parent;
     				} else {
+    					// new parent need to create
     					InnerNode newRoot = new InnerNode(this.pInner);
     					newRoot.addNewChild(parent, newInnerRight);
     					this.root = newRoot;
@@ -158,14 +160,22 @@ public class BPlusTree {
     			if (theLeaf.getPrev() != null && theLeaf.getPrev().getParent() == theLeaf.getParent()) {
     				merged = theLeaf.getPrev().merge(theLeaf);
     				parent = merged.getParent();
-    				for (int i = 0 ; i < parent.getChildren().size(); i ++) {
+    				for (int i = 0 ; i < parent.getChildren().size();i++) {
     					if (parent.getChildren().get(i) == theLeaf) {
-    						// delete the leaf and corresponding key
-    						parent.getKeys().remove(i);
-    						parent.getChildren().remove(theLeaf);
-    						break;
+    						parent.getChildren().remove(i);
+							// remove the key before it
+							parent.getKeys().remove(i - 1);
+    						
     					}
     				}
+//    				for (int i = 0 ; i < parent.getChildren().size(); i ++) {
+//    					if (parent.getChildren().get(i) == theLeaf) {
+//    						// delete the leaf and corresponding key
+//    						parent.getKeys().remove(i);
+//    						parent.getChildren().remove(theLeaf);
+//    						break;
+//    					}
+//    				}
     			} else if (theLeaf.getNext() != null && theLeaf.getNext().getParent() == theLeaf.getParent()) {
     				merged = theLeaf.getNext().merge(theLeaf);
     				parent = merged.getParent();
@@ -197,11 +207,19 @@ public class BPlusTree {
     						if (parent.parent.getChildren().get(i) == parent) {
     							if (i - 1 >= 0) {
     								parentLeft = (InnerNode) parent.parent.getChildren().get(i - 1);
+    								
     							}
     							if (i + 1 < parent.parent.getChildren().size()) {
     								parentRight = (InnerNode) parent.parent.getChildren().get(i + 1);
     							}
-    							keyIndex = i;
+    							// suppose we try to borrow from left first
+    							keyIndex = i - 1;
+//    							if (keyIndex < parent.getParent().getKeys().size()) {
+//    								keyIndex = i;
+//    							} else {
+//    								keyIndex = i - 1;
+//    							}
+    							
     							break;
     						}
     					}
@@ -215,6 +233,8 @@ public class BPlusTree {
     						parent.getKeys().add(0, parentKey);
     						
     					} else if (parentRight != null && parentRight.getChildren().size() > parentRight.minPointer) {
+    						//identify the key that needs to push through in parent
+    						keyIndex++;
     						// if can't borrow from left, try to borrow from right
     						Node toMove = parentRight.getChildren().remove(0);
     						Field passKey = parentRight.getKeys().remove(0);
@@ -241,6 +261,10 @@ public class BPlusTree {
 					}
 					
 				}
+    		}
+    	} else {
+    		if (theLeaf == root && theLeaf.getEntries().size() == 0) {
+    			root = null;
     		}
     	}
     	
