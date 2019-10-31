@@ -18,6 +18,7 @@ public class YourHW3Tests {
 
 	@Test
 	public void testSplit() {
+		// test tree structure after each insert
 		BPlusTree bt = new BPlusTree(3, 2);
 		bt.insert(new Entry(new IntField(9), 0));
 		bt.insert(new Entry(new IntField(4), 0));
@@ -72,9 +73,9 @@ public class YourHW3Tests {
 		
 		
 		//deleted ones should not exist
-				assertTrue(bt.search(new IntField(7)) == null);
-				assertTrue(bt.search(new IntField(3)) == null);
-				assertTrue(bt.search(new IntField(4)) == null);
+		assertTrue(bt.search(new IntField(7)) == null);
+		assertTrue(bt.search(new IntField(3)) == null);
+		assertTrue(bt.search(new IntField(4)) == null);
 	}
 	
 	@Test

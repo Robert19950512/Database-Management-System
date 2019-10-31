@@ -99,7 +99,12 @@ public class YourUnitTests {
 		f.add(0);
 		n.add("a2");
 		
-		ar = ar.rename(f, n);
+		try {
+			ar = ar.rename(f, n);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		assertTrue("Rename should change nothing", ar.getDesc().getFieldName(0).equals("a1"));
 		
 	}
@@ -118,7 +123,12 @@ public class YourUnitTests {
 		n.add("same");
 		n.add("same");
 		
-		ar = ar.rename(f, n);
+		try {
+			ar = ar.rename(f, n);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		assertTrue("Rename should change nothing", ar.getDesc().getFieldName(0).equals("a1") && ar.getDesc().getFieldName(1).equals("a2"));
 		
 	}

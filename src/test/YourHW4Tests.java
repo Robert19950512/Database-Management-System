@@ -59,5 +59,37 @@ public class YourHW4Tests {
 		tid2 = c.getTableId("test2");
 	}
 	
+	@Test
+	public void testMultipleWriteLockRequire() throws Exception {
+		bp.getPage(0, tid, 0, Permissions.READ_WRITE);
+		bp.getPage(1, tid, 0, Permissions.READ_WRITE);
+		// thread 1 shouldn't have access to page 0
+		assertFalse(bp.holdsLock(1, tid, 0));
+				
+	}
+	
+	@Test
+	public void testMultipleReadLockRequire() throws Exception {
+		bp.getPage(0, tid, 0, Permissions.READ_ONLY);
+		bp.getPage(1, tid, 0, Permissions.READ_ONLY);
+		bp.getPage(2, tid, 0, Permissions.READ_ONLY);
+		
+		assertTrue(bp.holdsLock(0, tid, 0));
+		assertTrue(bp.holdsLock(1, tid, 0));
+		assertTrue(bp.holdsLock(2, tid, 0));
+	}
+	
+	@Test
+	public void testAcquireWriteLockwithReadLock() throws Exception {
+		bp.getPage(0, tid, 0, Permissions.READ_ONLY);
+		bp.getPage(1, tid, 0, Permissions.READ_WRITE);
+		
+		assertTrue(bp.holdsLock(0, tid, 0));
+		assertTrue(!bp.holdsLock(1, tid, 0));
+	}
+	
+	
+	
+	
 
 }

@@ -69,7 +69,7 @@ public class BufferPool {
     }
 
     /** Return true if the specified transaction has a lock on the specified page */
-    public   boolean holdsLock(int tid, int tableId, int pid) {
+    public boolean holdsLock(int tid, int tableId, int pid) {
         // your code here
         return false;
     }
