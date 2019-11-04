@@ -325,11 +325,12 @@ public class HW4Tests {
 		bp.getPage(0, tid, 0, Permissions.READ_ONLY); //acquire lock for the page
 		try {
 			bp.insertTuple(0, tid, t); //insert the tuple into the page
+			assertTrue(false);
 		}catch(Exception e){
 			//should not allow the user to write to a lock with read only permissions
 			assertTrue(true);
 		}
-		assertTrue(false);
+		
 	}
 	
 	/**
