@@ -79,6 +79,7 @@ public class HW4Tests {
 			s[1] = 98;
 			s[2] = 121;
 			t.setPid(i);
+			t.setId(0);
 			bp.deleteTuple(0, tid2, t);
 		}
 		try {
@@ -135,19 +136,7 @@ public class HW4Tests {
 		assertTrue(true);
 	}
 	
-	@Test
-	public void testFailedLockUpgrade() throws Exception {
-		bp.getPage(0, tid, 0, Permissions.READ_ONLY);
-		bp.getPage(1, tid, 0, Permissions.READ_ONLY);
-		bp.getPage(0, tid, 0, Permissions.READ_WRITE);
-		if(!bp.holdsLock(0, tid, 0) && !bp.holdsLock(1, tid, 0)) {
-			fail("Lock upgrade should have failed");
-		}
-		if(bp.holdsLock(0, tid, 0) && bp.holdsLock(1, tid, 0)) {
-			fail("Lock upgrade should have failed");
-		}
-		assertTrue(true);
-	}
+	
 	
 	@Test
 	public void testWriteLocks() throws Exception {
@@ -218,7 +207,7 @@ public class HW4Tests {
 		bp.transactionComplete(0, true); //should flush the modified page
 		
 		//reset the buffer pool, get the page again, make sure data is there
-		Database.resetBufferPool(BufferPool.DEFAULT_PAGES);
+		bp = Database.resetBufferPool(BufferPool.DEFAULT_PAGES);
 		HeapPage hp = bp.getPage(1, tid, 0, Permissions.READ_ONLY);
 		Iterator<Tuple> it = hp.iterator();
 		assertTrue(it.hasNext());
@@ -243,7 +232,7 @@ public class HW4Tests {
 		bp.transactionComplete(0, false); //should abort, discard changes
 		
 		//reset the buffer pool, get the page again, make sure data is there
-		Database.resetBufferPool(BufferPool.DEFAULT_PAGES);
+		bp = Database.resetBufferPool(BufferPool.DEFAULT_PAGES);
 		HeapPage hp = bp.getPage(1, tid, 0, Permissions.READ_ONLY);
 		Iterator<Tuple> it = hp.iterator();
 		assertTrue(it.hasNext());
@@ -300,11 +289,13 @@ public class HW4Tests {
 		s[1] = 98;
 		s[2] = 121;
 		t.setField(1, new StringField(s));
+		t.setId(0);
+		t.setPid(0);
 		bp.deleteTuple(0, tid, t);
 		
 		bp.transactionComplete(0, true);
 		
-		Database.resetBufferPool(BufferPool.DEFAULT_PAGES);
+		bp = Database.resetBufferPool(BufferPool.DEFAULT_PAGES);
 		HeapPage hp = bp.getPage(1, tid, 0, Permissions.READ_ONLY);
 		Iterator<Tuple> it = hp.iterator();
 		assertFalse("Deletion failed", it.hasNext());
@@ -342,12 +333,22 @@ public class HW4Tests {
 	 * 
 	 * @throws Exception
 	 */
+	@Test
 	public void testDeadlockResolveAndSurvive() throws Exception {
 		bp.getPage(0, tid, 0, Permissions.READ_WRITE);
 		bp.getPage(1, tid2, 0, Permissions.READ_WRITE);
-		bp.getPage(0, tid2, 0, Permissions.READ_WRITE);
-		bp.getPage(1, tid, 0, Permissions.READ_WRITE);
+		try { // Either this transaction fails
+			bp.getPage(0, tid2, 0, Permissions.READ_WRITE);
+		} catch (Exception e) {
 
+		}
+		try { // Or this transaction fails
+			bp.getPage(1, tid, 0, Permissions.READ_WRITE);
+		} catch (Exception e) {
+
+		}
+
+		// The rest of the checking is the same
 		boolean holdsLock = bp.holdsLock(0, tid, 0) || bp.holdsLock(1, tid2, 0) || bp.holdsLock(0, tid2, 0)
 				|| bp.holdsLock(1, tid, 0);
 		assertTrue("All locks have been released, but some locks must survive the deadlock", holdsLock);
