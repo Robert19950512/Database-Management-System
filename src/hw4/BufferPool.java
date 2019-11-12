@@ -1,7 +1,12 @@
 package hw4;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
+import hw1.Catalog;
+import hw1.Database;
 import hw1.HeapPage;
 import hw1.Tuple;
 
@@ -15,6 +20,15 @@ import hw1.Tuple;
  * locks to read/write the page.
  */
 public class BufferPool {
+	// key: pageID; value: list of transactionId
+	HashMap<HeapPage, List<Integer>> readLocks;
+	// key: pageID; value: transactionId
+	HashMap<HeapPage, Integer> writeLocks;
+	// key: pageID; value: whether the page is "dirty"
+	HashMap<HeapPage, Boolean> isDirty;
+	int maxPages;
+	int size;
+	
     /** Bytes per page, including header. */
     public static final int PAGE_SIZE = 4096;
 
@@ -29,7 +43,11 @@ public class BufferPool {
      * @param numPages maximum number of pages in this buffer pool.
      */
     public BufferPool(int numPages) {
-        // your code here
+    	this.maxPages = numPages;
+    	this.size = 0;
+        this.readLocks = new HashMap<HeapPage, List<Integer>> ();
+        this.writeLocks = new HashMap<HeapPage, Integer>();
+        this.isDirty = new HashMap<HeapPage, Boolean>();
     }
 
     /**
@@ -51,7 +69,30 @@ public class BufferPool {
     public HeapPage getPage(int tid, int tableId, int pid, Permissions perm)
         throws Exception {
         // your code here
-        return null;
+    	//get Heappage
+    	Catalog catalog = Database.getCatalog();
+		HeapPage thePage = catalog.getDbFile(tableId).readPage(pid);
+		//if no space, evict
+		
+		
+		
+		if(perm.permLevel == 0) {//read
+			if (this.readLocks.containsKey(thePage)) {
+				this.readLocks.get(thePage).add(tid);
+			} else {
+				ArrayList<Integer> listOfTrans = new ArrayList<Integer>();
+				listOfTrans.add(tid);
+				this.readLocks.put(thePage, listOfTrans);
+			}
+		}
+		if(perm.permLevel == 1) {//write
+			if (!this.readLocks.containsKey(thePage)) {
+				this.writeLocks.put(thePage, tid);
+			}
+			//this.isDirty.put(thePage, true); //????
+		}
+		
+        return thePage;
     }
 
     /**
@@ -100,6 +141,8 @@ public class BufferPool {
     public  void insertTuple(int tid, int tableId, Tuple t)
         throws Exception {
         // your code here
+    	HeapPage thePage = getPage(tid, tableId, t.getPid(), Permissions.READ_WRITE);//????
+    	this.isDirty.put(thePage, true);
     }
 
     /**
@@ -116,6 +159,8 @@ public class BufferPool {
     public  void deleteTuple(int tid, int tableId, Tuple t)
         throws Exception {
         // your code here
+    	HeapPage thePage = getPage(tid, tableId, t.getPid(), Permissions.READ_WRITE);//????
+    	this.isDirty.put(thePage, true);
     }
 
     private synchronized  void flushPage(int tableId, int pid) throws IOException {
