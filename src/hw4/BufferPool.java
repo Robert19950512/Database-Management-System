@@ -3,7 +3,10 @@ package hw4;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import hw1.Catalog;
 import hw1.Database;
@@ -157,6 +160,31 @@ public class BufferPool {
     public   void transactionComplete(int tid, boolean commit)
         throws IOException {
         // your code here
+    	HashSet<Integer[]> pages = new HashSet<>();
+    	for (Map.Entry<Integer[], List<Integer>> entry : readLocks.entrySet()) {
+    		if (entry.getValue().contains(Integer.valueOf(tid))) {
+    			entry.getValue().remove(Integer.valueOf(tid));
+    		}
+    	}
+    	Iterator<Map.Entry<Integer[],Integer>> iter = writeLocks.entrySet().iterator();
+    	while (iter.hasNext()) {
+    		Map.Entry<Integer[], Integer> entry = iter.next();
+    		if (entry.getValue().equals(Integer.valueOf(tid))) {
+    			pages.add(entry.getKey());
+    			iter.remove();
+    		}
+    	}
+    	if (commit) {
+    		for (Integer[] index : pages) {
+    			HeapPage thePage = cache.get(index);
+    			Database.getCatalog().getDbFile(index[0]).writePage(thePage);
+    			isDirty.put(index, false);
+    		}
+    	} else {
+    		for (Integer[] index : pages) {
+    			flushPage(index[0],index[1]);
+    		}
+    	}
     }
 
     /**
@@ -203,6 +231,10 @@ public class BufferPool {
 
     private synchronized  void flushPage(int tableId, int pid) throws IOException {
         // your code here
+    	Integer[] index = new Integer[] {tableId, pid};
+    	HeapPage newPage = Database.getCatalog().getDbFile(tableId).readPage(pid);
+    	cache.put(index, newPage);
+    	isDirty.put(index, false);
     }
 
     /**
@@ -211,6 +243,7 @@ public class BufferPool {
      */
     private synchronized  void evictPage() throws Exception {
         // your code here
+    	
     }
 
 }
