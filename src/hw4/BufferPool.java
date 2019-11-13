@@ -72,41 +72,47 @@ public class BufferPool {
     public HeapPage getPage(int tid, int tableId, int pid, Permissions perm)
         throws Exception {
         // your code here
-    	//if already in cache
     	Integer[] idPair = new Integer[] {tableId, pid};
-    	if (this.cache.containsKey(idPair)) {
-    		return this.cache.get(idPair);
-    	}
+    	HeapPage thePage;
+    	//if already in cache
+		if (this.cache.containsKey(idPair)) {
+    		thePage = this.cache.get(idPair);
+    	} else {
     	//get Heappage
-    	Catalog catalog = Database.getCatalog();
-		HeapPage thePage = catalog.getDbFile(tableId).readPage(pid);
-		//if no space, evict
-		
-		
-		if (!this.readLocks.containsKey(idPair)) {
-			if (perm.permLevel == 0) {//read
+    		Catalog catalog = Database.getCatalog();
+    		thePage = catalog.getDbFile(tableId).readPage(pid);
+    	}
+    	
+		if(perm.permLevel == 1) {//write
+			if (!this.writeLocks.containsKey(idPair) && !this.readLocks.containsKey(idPair)) {
+				this.writeLocks.put(idPair, tid);
+				this.cache.put(idPair, thePage);
+				return thePage;  
+			}else {
+				System.out.println("this page is held by another transaction");
+				throw new Exception();
+			}
+		}else if (perm.permLevel == 0) {//read
+			if (this.writeLocks.containsKey(idPair)) {
+				System.out.println("this page is held by another write%read lock");
+				throw new Exception();
+			} else {
 				if (this.readLocks.containsKey(idPair)) {
 					this.readLocks.get(idPair).add(tid);
+					this.cache.put(idPair, thePage);
 				} else {
 					ArrayList<Integer> listOfTrans = new ArrayList<Integer>();
 					listOfTrans.add(tid);
 					this.readLocks.put(idPair, listOfTrans);
 					this.cache.put(idPair, thePage);
 				}
+				return thePage;  
 			}
-			if(perm.permLevel == 1) {//write
-				if (!this.readLocks.containsKey(idPair)) {
-					this.writeLocks.put(idPair, tid);
-					this.cache.put(idPair, thePage);
-				}
-			//this.isDirty.put(thePage, true); //????
-			}
-			return thePage;
 		} else {
-			System.out.println("this page is held by another transaction");
+			System.out.println("Unknown transaction");
 			throw new Exception();
 		}
-        
+			
     }
 
     /**
