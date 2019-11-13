@@ -12,7 +12,11 @@ import hw1.Catalog;
 import hw1.Database;
 import hw1.HeapPage;
 import hw1.Tuple;
-// something
+/*
+ * Student 1 name: Fa Long (id:462512)
+ * Student 2 name: Zhuo Wei (id: 462473)
+ * Date: Nov 13th, 2019
+ */
 /**
  * BufferPool manages the reading and writing of pages into memory from
  * disk. Access methods call into it to retrieve pages, and it fetches
