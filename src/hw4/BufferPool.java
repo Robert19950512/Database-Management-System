@@ -24,15 +24,15 @@ import hw1.Tuple;
  */
 public class BufferPool {
 	// key: tableId & pageID; value: list of transactionId
-	HashMap<Integer[], List<Integer>> readLocks;
+	HashMap<IdPair, List<Integer>> readLocks;
 	// key: tableId & pageID; value: transactionId
-	HashMap<Integer[], Integer> writeLocks;
+	HashMap<IdPair, Integer> writeLocks;
 	// key: tableId & pageID; value: whether the page is "dirty"
-	HashMap<Integer[], Boolean> isDirty;
+	HashMap<IdPair, Boolean> isDirty;
 	// key: tableId & pageID; value: heapPage
-	HashMap<Integer[], HeapPage> cache;
+	HashMap<IdPair, HeapPage> cache;
 	int maxPages;
-	int size;
+	
 	
     /** Bytes per page, including header. */
     public static final int PAGE_SIZE = 4096;
@@ -49,11 +49,10 @@ public class BufferPool {
      */
     public BufferPool(int numPages) {
     	this.maxPages = numPages;
-    	this.size = 0;
-        this.readLocks = new HashMap<Integer[], List<Integer>> ();
-        this.writeLocks = new HashMap<Integer[], Integer>();
-        this.isDirty = new HashMap<Integer[], Boolean>();
-        this.cache = new HashMap<Integer[], HeapPage>();
+        this.readLocks = new HashMap<IdPair, List<Integer>> ();
+        this.writeLocks = new HashMap<IdPair, Integer>();
+        this.isDirty = new HashMap<IdPair, Boolean>();
+        this.cache = new HashMap<IdPair, HeapPage>();
     }
 
     /**
@@ -75,21 +74,34 @@ public class BufferPool {
     public HeapPage getPage(int tid, int tableId, int pid, Permissions perm)
         throws Exception {
         // your code here
-    	Integer[] idPair = new Integer[] {tableId, pid};
+    	
+    	IdPair idPair = new IdPair (tableId, pid);
     	HeapPage thePage;
     	//if already in cache
 		if (this.cache.containsKey(idPair)) {
     		thePage = this.cache.get(idPair);
     	} else {
     	//get Heappage
+    		
     		Catalog catalog = Database.getCatalog();
     		thePage = catalog.getDbFile(tableId).readPage(pid);
+    		if (this.cache.size() == this.maxPages) {
+    			evictPage();
+    		}
+    		this.cache.put(idPair, thePage);
+    		this.isDirty.put(idPair, false);
     	}
     	
 		if(perm.permLevel == 1) {//write
+			if (!this.writeLocks.containsKey(idPair) && this.readLocks.containsKey(idPair) && this.readLocks.size() == 1) {
+				this.writeLocks.put(idPair, tid);
+				return thePage; 
+			}
+			if (this.writeLocks.containsKey(idPair) && this.writeLocks.get(idPair) == tid) {
+				return thePage;
+			}
 			if (!this.writeLocks.containsKey(idPair) && !this.readLocks.containsKey(idPair)) {
 				this.writeLocks.put(idPair, tid);
-				this.cache.put(idPair, thePage);
 				return thePage;  
 			}else {
 				System.out.println("this page is held by another transaction");
@@ -101,13 +113,20 @@ public class BufferPool {
 				throw new Exception();
 			} else {
 				if (this.readLocks.containsKey(idPair)) {
-					this.readLocks.get(idPair).add(tid);
-					this.cache.put(idPair, thePage);
+					//check whether already exist
+					for(int i = 0; i < this.readLocks.get(idPair).size(); i++) {
+						if (this.readLocks.get(idPair).get(i).equals(tid)) {
+							return thePage;
+						}
+						this.readLocks.get(idPair).add(tid);
+					}
+					
+					//this.cache.put(idPair, thePage);
 				} else {
 					ArrayList<Integer> listOfTrans = new ArrayList<Integer>();
 					listOfTrans.add(tid);
 					this.readLocks.put(idPair, listOfTrans);
-					this.cache.put(idPair, thePage);
+					//this.cache.put(idPair, thePage);
 				}
 				return thePage;  
 			}
@@ -138,13 +157,15 @@ public class BufferPool {
     /** Return true if the specified transaction has a lock on the specified page */
     public boolean holdsLock(int tid, int tableId, int pid) {
         // your code here
-    	Integer[] idPair = new Integer[] {tableId, pid};
-    	if (this.writeLocks.get(idPair) == tid) {
+    	IdPair idPair = new IdPair(tableId, pid);
+    	if (this.writeLocks.get(idPair) != null && this.writeLocks.get(idPair).equals(tid)) {
     		return true;
     	} 
-    	for (int t : this.readLocks.get(idPair)) {
-    		if (t == tid) {
-    			return true;
+    	if (this.readLocks.get(idPair) != null) {
+    		for (int t : this.readLocks.get(idPair)) {
+    			if (t == tid) {
+    				return true;
+    			}
     		}
     	}
         return false;
@@ -160,29 +181,29 @@ public class BufferPool {
     public   void transactionComplete(int tid, boolean commit)
         throws IOException {
         // your code here
-    	HashSet<Integer[]> pages = new HashSet<>();
-    	for (Map.Entry<Integer[], List<Integer>> entry : readLocks.entrySet()) {
+    	HashSet<IdPair> pages = new HashSet<>();
+    	for (Map.Entry<IdPair, List<Integer>> entry : readLocks.entrySet()) {
     		if (entry.getValue().contains(Integer.valueOf(tid))) {
     			entry.getValue().remove(Integer.valueOf(tid));
     		}
     	}
-    	Iterator<Map.Entry<Integer[],Integer>> iter = writeLocks.entrySet().iterator();
+    	Iterator<Map.Entry<IdPair,Integer>> iter = writeLocks.entrySet().iterator();
     	while (iter.hasNext()) {
-    		Map.Entry<Integer[], Integer> entry = iter.next();
+    		Map.Entry<IdPair, Integer> entry = iter.next();
     		if (entry.getValue().equals(Integer.valueOf(tid))) {
     			pages.add(entry.getKey());
     			iter.remove();
     		}
     	}
     	if (commit) {
-    		for (Integer[] index : pages) {
+    		for (IdPair index : pages) {
     			HeapPage thePage = cache.get(index);
-    			Database.getCatalog().getDbFile(index[0]).writePage(thePage);
+    			Database.getCatalog().getDbFile(index.tid).writePage(thePage);
     			isDirty.put(index, false);
     		}
     	} else {
-    		for (Integer[] index : pages) {
-    			flushPage(index[0],index[1]);
+    		for (IdPair index : pages) {
+    			flushPage(index.tid,index.pid);
     		}
     	}
     }
@@ -202,7 +223,7 @@ public class BufferPool {
         throws Exception {
         // your code here
     	int pid = t.getPid();
-    	Integer[] idPair = new Integer[] {tableId, pid};
+    	IdPair idPair = new IdPair(tableId, pid);
     	HeapPage thePage = getPage(tid, tableId, pid, Permissions.READ_WRITE);//????
     	this.isDirty.put(idPair, true);
     	thePage.addTuple(t);
@@ -223,7 +244,7 @@ public class BufferPool {
         throws Exception {
         // your code here
     	int pid = t.getPid();
-    	Integer[] idPair = new Integer[] {tableId, pid};
+    	IdPair idPair = new IdPair(tableId, pid);
     	HeapPage thePage = getPage(tid, tableId, pid, Permissions.READ_WRITE);//????
     	this.isDirty.put(idPair, true);
     	thePage.deleteTuple(t);
@@ -231,7 +252,7 @@ public class BufferPool {
 
     private synchronized  void flushPage(int tableId, int pid) throws IOException {
         // your code here
-    	Integer[] index = new Integer[] {tableId, pid};
+    	IdPair index = new IdPair(tableId, pid);
     	HeapPage newPage = Database.getCatalog().getDbFile(tableId).readPage(pid);
     	cache.put(index, newPage);
     	isDirty.put(index, false);
@@ -243,9 +264,9 @@ public class BufferPool {
      */
     private synchronized  void evictPage() throws Exception {
         // your code here
-    	Iterator<Map.Entry<Integer[],Boolean>> iter = isDirty.entrySet().iterator();
+    	Iterator<Map.Entry<IdPair,Boolean>> iter = isDirty.entrySet().iterator();
     	while (iter.hasNext()) {
-    		Map.Entry<Integer[],Boolean> entry = iter.next();
+    		Map.Entry<IdPair,Boolean> entry = iter.next();
     		if (entry.getValue() == false) {
     			cache.remove(entry.getKey());
     			iter.remove();
@@ -253,6 +274,33 @@ public class BufferPool {
     		}
     	}
     	throw new Exception();
+    }
+    
+    
+    class IdPair {
+    	int tid;
+    	int pid;
+    	public IdPair(int t, int p) {
+    		this.tid = t;
+    		this.pid = p;
+    	}
+    	
+    	@Override
+    	public boolean equals(Object obj) {
+    		if (this == obj) {
+    			return true;
+    		}
+    		if(!(obj instanceof IdPair)) {
+    			return false;
+    		}
+    		IdPair another = (IdPair)obj;
+    		return this.tid == another.tid && this.pid == another.pid;
+    		
+    	}
+    	@Override
+    	public int hashCode() {
+    		return this.tid * 31 + this.pid;
+    	}
     }
 
 }
