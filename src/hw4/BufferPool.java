@@ -243,7 +243,16 @@ public class BufferPool {
      */
     private synchronized  void evictPage() throws Exception {
         // your code here
-    	
+    	Iterator<Map.Entry<Integer[],Boolean>> iter = isDirty.entrySet().iterator();
+    	while (iter.hasNext()) {
+    		Map.Entry<Integer[],Boolean> entry = iter.next();
+    		if (entry.getValue() == false) {
+    			cache.remove(entry.getKey());
+    			iter.remove();
+    			return;
+    		}
+    	}
+    	throw new Exception();
     }
 
 }
