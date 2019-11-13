@@ -93,17 +93,24 @@ public class BufferPool {
     	}
     	
 		if(perm.permLevel == 1) {//write
-			if (!this.writeLocks.containsKey(idPair) && this.readLocks.containsKey(idPair) && this.readLocks.size() == 1) {
-				this.writeLocks.put(idPair, tid);
-				return thePage; 
-			}
-			if (this.writeLocks.containsKey(idPair) && this.writeLocks.get(idPair) == tid) {
+			//not hold by wirte lock
+			if (!this.writeLocks.containsKey(idPair)){
+				//not hold by readLock
+				if (!this.readLocks.containsKey(idPair)) {
+					this.writeLocks.put(idPair, tid);
+					return thePage; 
+				//already hold by readLock, upgrade
+				} else if(this.readLocks.containsKey(idPair) && this.readLocks.size() == 1) {
+					this.writeLocks.put(idPair, tid);
+					return thePage; 
+				} else {
+					System.out.println("this page is held by another transaction");
+					throw new Exception();
+				}
+			// hold by wirteLock but itself
+			} else if (this.writeLocks.containsKey(idPair) && this.writeLocks.get(idPair) == tid) {
 				return thePage;
-			}
-			if (!this.writeLocks.containsKey(idPair) && !this.readLocks.containsKey(idPair)) {
-				this.writeLocks.put(idPair, tid);
-				return thePage;  
-			}else {
+			} else {
 				System.out.println("this page is held by another transaction");
 				throw new Exception();
 			}
