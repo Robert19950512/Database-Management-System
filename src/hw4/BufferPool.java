@@ -99,10 +99,14 @@ public class BufferPool {
 				if (!this.readLocks.containsKey(idPair)) {
 					this.writeLocks.put(idPair, tid);
 					return thePage; 
-				//already hold by readLock, upgrade
-				} else if(this.readLocks.containsKey(idPair) && this.readLocks.size() == 1) {
-					this.writeLocks.put(idPair, tid);
-					return thePage; 
+				//already hold by readLock, upgrade this.readLocks.size() == 1
+				} else if(this.readLocks.containsKey(idPair)) {
+					for(int i = 0; i < this.readLocks.get(idPair).size(); i++) {
+						if (this.readLocks.get(idPair).get(i).equals(tid)) {
+							this.writeLocks.put(idPair, tid);
+						}
+					}
+					return thePage;
 				} else {
 					System.out.println("this page is held by another transaction");
 					throw new Exception();
@@ -115,10 +119,9 @@ public class BufferPool {
 				throw new Exception();
 			}
 		}else if (perm.permLevel == 0) {//read
-			if (this.writeLocks.containsKey(idPair)) {
-				System.out.println("this page is held by another write%read lock");
-				throw new Exception();
-			} else {
+			if (this.writeLocks.containsKey(idPair) && this.writeLocks.get(idPair).equals(tid)
+					|| !this.writeLocks.containsKey(idPair)) {
+				
 				if (this.readLocks.containsKey(idPair)) {
 					//check whether already exist
 					for(int i = 0; i < this.readLocks.get(idPair).size(); i++) {
@@ -127,16 +130,18 @@ public class BufferPool {
 						}
 						this.readLocks.get(idPair).add(tid);
 					}
-					
 					//this.cache.put(idPair, thePage);
 				} else {
 					ArrayList<Integer> listOfTrans = new ArrayList<Integer>();
 					listOfTrans.add(tid);
 					this.readLocks.put(idPair, listOfTrans);
 					//this.cache.put(idPair, thePage);
-				}
+				}	
 				return thePage;  
-			}
+			} else {
+				System.out.println("this page is held by another write%read lock");
+				throw new Exception();
+			} 	
 		} else {
 			System.out.println("Unknown transaction");
 			throw new Exception();
