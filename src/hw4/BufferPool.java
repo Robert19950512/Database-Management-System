@@ -127,11 +127,15 @@ public class BufferPool {
      */
     public  void releasePage(int tid, int tableId, int pid) {
         // your code here
+    	Integer[] index = new Integer[] {tableId, pid};
+    	readLocks.get(index).remove(Integer.valueOf(tid));
+    	writeLocks.remove(index);
     }
 
     /** Return true if the specified transaction has a lock on the specified page */
     public boolean holdsLock(int tid, int tableId, int pid) {
         // your code here
+    	
         return false;
     }
 
