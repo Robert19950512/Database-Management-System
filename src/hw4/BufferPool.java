@@ -20,13 +20,13 @@ import hw1.Tuple;
  * locks to read/write the page.
  */
 public class BufferPool {
-	// key: pageID & tableId; value: list of transactionId
+	// key: tableId & pageID; value: list of transactionId
 	HashMap<Integer[], List<Integer>> readLocks;
-	// key: pageID & tableId; value: transactionId
+	// key: tableId & pageID; value: transactionId
 	HashMap<Integer[], Integer> writeLocks;
-	// key: pageID & tableId; value: whether the page is "dirty"
+	// key: tableId & pageID; value: whether the page is "dirty"
 	HashMap<Integer[], Boolean> isDirty;
-	// key: pageID & tableId; value: heapPage
+	// key: tableId & pageID; value: heapPage
 	HashMap<Integer[], HeapPage> cache;
 	int maxPages;
 	int size;
@@ -72,30 +72,41 @@ public class BufferPool {
     public HeapPage getPage(int tid, int tableId, int pid, Permissions perm)
         throws Exception {
         // your code here
+    	//if already in cache
+    	Integer[] idPair = new Integer[] {tableId, pid};
+    	if (this.cache.containsKey(idPair)) {
+    		return this.cache.get(idPair);
+    	}
     	//get Heappage
     	Catalog catalog = Database.getCatalog();
 		HeapPage thePage = catalog.getDbFile(tableId).readPage(pid);
 		//if no space, evict
 		
 		
-		
-		if(perm.permLevel == 0) {//read
-			if (this.readLocks.containsKey(thePage)) {
-				this.readLocks.get(thePage).add(tid);
-			} else {
-				ArrayList<Integer> listOfTrans = new ArrayList<Integer>();
-				listOfTrans.add(tid);
-				this.readLocks.put(thePage, listOfTrans);
+		if (!this.readLocks.containsKey(idPair)) {
+			if (perm.permLevel == 0) {//read
+				if (this.readLocks.containsKey(idPair)) {
+					this.readLocks.get(idPair).add(tid);
+				} else {
+					ArrayList<Integer> listOfTrans = new ArrayList<Integer>();
+					listOfTrans.add(tid);
+					this.readLocks.put(idPair, listOfTrans);
+					this.cache.put(idPair, thePage);
+				}
 			}
-		}
-		if(perm.permLevel == 1) {//write
-			if (!this.readLocks.containsKey(thePage)) {
-				this.writeLocks.put(thePage, tid);
-			}
+			if(perm.permLevel == 1) {//write
+				if (!this.readLocks.containsKey(idPair)) {
+					this.writeLocks.put(idPair, tid);
+					this.cache.put(idPair, thePage);
+				}
 			//this.isDirty.put(thePage, true); //????
+			}
+			return thePage;
+		} else {
+			System.out.println("this page is held by another transaction");
+			throw new Exception();
 		}
-		
-        return thePage;
+        
     }
 
     /**
@@ -144,8 +155,11 @@ public class BufferPool {
     public  void insertTuple(int tid, int tableId, Tuple t)
         throws Exception {
         // your code here
-    	HeapPage thePage = getPage(tid, tableId, t.getPid(), Permissions.READ_WRITE);//????
-    	this.isDirty.put(thePage, true);
+    	int pid = t.getPid();
+    	Integer[] idPair = new Integer[] {tableId, pid};
+    	HeapPage thePage = getPage(tid, tableId, pid, Permissions.READ_WRITE);//????
+    	this.isDirty.put(idPair, true);
+    	thePage.addTuple(t);
     }
 
     /**
@@ -162,8 +176,11 @@ public class BufferPool {
     public  void deleteTuple(int tid, int tableId, Tuple t)
         throws Exception {
         // your code here
-    	HeapPage thePage = getPage(tid, tableId, t.getPid(), Permissions.READ_WRITE);//????
-    	this.isDirty.put(thePage, true);
+    	int pid = t.getPid();
+    	Integer[] idPair = new Integer[] {tableId, pid};
+    	HeapPage thePage = getPage(tid, tableId, pid, Permissions.READ_WRITE);//????
+    	this.isDirty.put(idPair, true);
+    	thePage.deleteTuple(t);
     }
 
     private synchronized  void flushPage(int tableId, int pid) throws IOException {
