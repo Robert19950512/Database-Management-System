@@ -224,9 +224,14 @@ public class BufferPool {
         // your code here
     	int pid = t.getPid();
     	IdPair idPair = new IdPair(tableId, pid);
-    	HeapPage thePage = getPage(tid, tableId, pid, Permissions.READ_WRITE);//????
-    	this.isDirty.put(idPair, true);
-    	thePage.addTuple(t);
+    	HeapPage thePage = this.cache.get(idPair);
+    	if (this.writeLocks.get(idPair) == tid) {
+    		this.isDirty.put(idPair, true);
+        	thePage.addTuple(t);
+    	} else {
+    		throw new Exception();
+    	}
+    	
     }
 
     /**
