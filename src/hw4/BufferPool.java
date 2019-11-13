@@ -156,8 +156,10 @@ public class BufferPool {
      */
     public  void releasePage(int tid, int tableId, int pid) {
         // your code here
-    	Integer[] index = new Integer[] {tableId, pid};
-    	readLocks.get(index).remove(Integer.valueOf(tid));
+    	IdPair index = new IdPair(tableId,pid);
+    	if (readLocks.get(index) != null) {
+    		readLocks.get(index).remove(Integer.valueOf(tid));
+    	}	
     	writeLocks.remove(index);
     }
 
