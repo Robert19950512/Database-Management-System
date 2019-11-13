@@ -20,12 +20,14 @@ import hw1.Tuple;
  * locks to read/write the page.
  */
 public class BufferPool {
-	// key: pageID; value: list of transactionId
-	HashMap<HeapPage, List<Integer>> readLocks;
-	// key: pageID; value: transactionId
-	HashMap<HeapPage, Integer> writeLocks;
-	// key: pageID; value: whether the page is "dirty"
-	HashMap<HeapPage, Boolean> isDirty;
+	// key: pageID & tableId; value: list of transactionId
+	HashMap<Integer[], List<Integer>> readLocks;
+	// key: pageID & tableId; value: transactionId
+	HashMap<Integer[], Integer> writeLocks;
+	// key: pageID & tableId; value: whether the page is "dirty"
+	HashMap<Integer[], Boolean> isDirty;
+	// key: pageID & tableId; value: heapPage
+	HashMap<Integer[], HeapPage> cache;
 	int maxPages;
 	int size;
 	
@@ -45,9 +47,10 @@ public class BufferPool {
     public BufferPool(int numPages) {
     	this.maxPages = numPages;
     	this.size = 0;
-        this.readLocks = new HashMap<HeapPage, List<Integer>> ();
-        this.writeLocks = new HashMap<HeapPage, Integer>();
-        this.isDirty = new HashMap<HeapPage, Boolean>();
+        this.readLocks = new HashMap<Integer[], List<Integer>> ();
+        this.writeLocks = new HashMap<Integer[], Integer>();
+        this.isDirty = new HashMap<Integer[], Boolean>();
+        this.cache = new HashMap<Integer[], HeapPage>();
     }
 
     /**
