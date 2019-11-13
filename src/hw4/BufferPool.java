@@ -109,6 +109,7 @@ public class BufferPool {
 					return thePage;
 				} else {
 					System.out.println("this page is held by another transaction");
+					giveUpAllLocks(tid);
 					throw new Exception();
 				}
 			// hold by wirteLock but itself
@@ -116,6 +117,7 @@ public class BufferPool {
 				return thePage;
 			} else {
 				System.out.println("this page is held by another transaction");
+				giveUpAllLocks(tid);
 				throw new Exception();
 			}
 		}else if (perm.permLevel == 0) {//read
@@ -140,6 +142,7 @@ public class BufferPool {
 				return thePage;  
 			} else {
 				System.out.println("this page is held by another write%read lock");
+				giveUpAllLocks(tid);
 				throw new Exception();
 			} 	
 		} else {
@@ -267,6 +270,21 @@ public class BufferPool {
     	HeapPage thePage = getPage(tid, tableId, pid, Permissions.READ_WRITE);//????
     	this.isDirty.put(idPair, true);
     	thePage.deleteTuple(t);
+    }
+    
+    private void giveUpAllLocks(int tid) {
+    	for (Map.Entry<IdPair, List<Integer>> entry : readLocks.entrySet()) {
+    		if (entry.getValue().contains(Integer.valueOf(tid))) {
+    			entry.getValue().remove(Integer.valueOf(tid));
+    		}
+    	}
+    	Iterator<Map.Entry<IdPair,Integer>> iter = writeLocks.entrySet().iterator();
+    	while (iter.hasNext()) {
+    		Map.Entry<IdPair, Integer> entry = iter.next();
+    		if (entry.getValue().equals(Integer.valueOf(tid))) {
+    			iter.remove();
+    		}
+    	}
     }
 
     private synchronized  void flushPage(int tableId, int pid) throws IOException {
